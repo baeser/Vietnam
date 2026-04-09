@@ -2113,6 +2113,11 @@ function renderScene(sceneId) {
         <textarea id="reflection-3" placeholder="Write your response here..."></textarea>
       </div>
 
+      <div class="reflection-field">
+        <label>4. Earlier in the simulation, you entered your birthday into the 1969 draft lottery. What was your number? Would you have been drafted? How does it feel to know that if you had been 18 in 1969, your birthday alone would have determined whether you were sent to fight in Vietnam? What would you have done if your number had been called?</label>
+        <textarea id="reflection-4" placeholder="Write your response here..."></textarea>
+      </div>
+
       <div class="reflection-actions">
         <button class="save-pdf-btn" onclick="savePDF()">Save as PDF</button>
         <button class="restart-btn" onclick="restartGame()">Start Over</button>
@@ -2297,6 +2302,7 @@ function savePDF() {
   const r1 = document.getElementById('reflection-1').value.trim();
   const r2 = document.getElementById('reflection-2').value.trim();
   const r3 = document.getElementById('reflection-3').value.trim();
+  const r4 = document.getElementById('reflection-4').value.trim();
 
   if (!name) {
     alert('Please enter your name before saving.');
@@ -2304,8 +2310,8 @@ function savePDF() {
     return;
   }
 
-  if (!r1 || !r2 || !r3) {
-    alert('Please answer all three reflection questions before saving.');
+  if (!r1 || !r2 || !r3 || !r4) {
+    alert('Please answer all four reflection questions before saving.');
     return;
   }
 
@@ -2431,6 +2437,11 @@ ${state.report ? `
   <div class="q-label">Question 3</div>
   <div class="q-text">My Lai, the Cambodia bombing, and the Pentagon Papers raised questions about individual responsibility. What obligations do individuals have when they witness wrongdoing?</div>
   <div class="answer">${r3}</div>
+</div>
+<div class="question">
+  <div class="q-label">Question 4</div>
+  <div class="q-text">What was your 1969 draft lottery number? Would you have been drafted? How does it feel knowing your birthday alone would have decided your fate? What would you have done if your number was called?</div>
+  <div class="answer">${r4}</div>
 </div>
 <div class="footer">
   Vietnam: 1954–1975 — Historical Simulation for 9th Grade U.S. History
