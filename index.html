@@ -978,6 +978,47 @@
   }
   .evidence-close-btn:hover { background: var(--accent-light); }
 
+  /* ===== CASUALTY COUNTER ===== */
+  .casualty-counter {
+    background: #1a1a1a;
+    color: #ccc;
+    padding: 0.6rem 1.2rem;
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 0.82rem;
+    display: none;
+    justify-content: center;
+    gap: 2rem;
+    border-bottom: 1px solid #333;
+    letter-spacing: 0.02em;
+  }
+  .casualty-counter.active { display: flex; }
+  .casualty-counter .counter-group {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .casualty-counter .counter-label {
+    color: #888;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+  }
+  .casualty-counter .counter-value {
+    color: #e8e8e8;
+    font-weight: 700;
+    font-size: 0.9rem;
+    font-variant-numeric: tabular-nums;
+    transition: color 0.3s;
+  }
+  .casualty-counter .counter-value.rising {
+    color: #ff6b6b;
+  }
+  .casualty-counter .counter-year {
+    color: var(--gold);
+    font-weight: 700;
+    font-size: 0.85rem;
+  }
+
   /* ===== RESPONSIVE ===== */
   @media (max-width: 700px) {
     #title-screen h1 { font-size: 2.2rem; }
@@ -987,6 +1028,9 @@
     .map-legend { display: none; }
     #game-container { padding: 1.5rem 1rem 3rem; }
     .scene-title { font-size: 1.4rem; }
+    .casualty-counter { gap: 0.8rem; flex-wrap: wrap; padding: 0.5rem 0.8rem; font-size: 0.75rem; }
+    .casualty-counter .counter-value { font-size: 0.8rem; }
+    .casualty-counter .counter-label { font-size: 0.6rem; }
   }
 </style>
 </head>
@@ -1031,6 +1075,26 @@
   </div>
 </div>
 
+<!-- ===== CASUALTY COUNTER ===== -->
+<div class="casualty-counter" id="casualty-counter">
+  <div class="counter-group">
+    <span class="counter-label">Year</span>
+    <span class="counter-year" id="counter-year">1954</span>
+  </div>
+  <div class="counter-group">
+    <span class="counter-label">U.S. Troops in Vietnam</span>
+    <span class="counter-value" id="counter-troops">0</span>
+  </div>
+  <div class="counter-group">
+    <span class="counter-label">Americans Killed</span>
+    <span class="counter-value" id="counter-us-dead">0</span>
+  </div>
+  <div class="counter-group">
+    <span class="counter-label">Vietnamese Killed</span>
+    <span class="counter-value" id="counter-vn-dead">0</span>
+  </div>
+</div>
+
 <!-- ===== GAME CONTENT ===== -->
 <div id="game-container"></div>
 
@@ -1049,6 +1113,56 @@ const state = {
   report: null,
   _pendingChoice: null
 };
+
+// ============================================================
+// CASUALTY COUNTER DATA (cumulative by scene)
+// Sources: National Archives, DoD records, Vietnam Veterans Memorial
+// ============================================================
+const casualtyData = {
+  scene1:   { year: '1954',      troops: '0',       usDead: '0',      vnDead: '0' },
+  scene2:   { year: '1963',      troops: '16,300',  usDead: '122',    vnDead: '~100,000' },
+  scene3:   { year: '1964',      troops: '23,300',  usDead: '401',    vnDead: '~150,000' },
+  scene4:   { year: '1965',      troops: '184,300', usDead: '1,928',  vnDead: '~250,000' },
+  scene5:   { year: '1966–67',   troops: '485,600', usDead: '15,058', vnDead: '~600,000' },
+  scene6:   { year: '1968',      troops: '536,100', usDead: '36,152', vnDead: '~1,000,000' },
+  scene7:   { year: '1968',      troops: '536,100', usDead: '36,152', vnDead: '~1,000,000' },
+  scene8:   { year: '1968–69',   troops: '475,200', usDead: '40,024', vnDead: '~1,200,000' },
+  scene9:   { year: '1969–71',   troops: '156,800', usDead: '45,627', vnDead: '~1,800,000' },
+  scene10:  { year: '1973',      troops: '0',       usDead: '58,220', vnDead: '~2,500,000' },
+  epilogue: { year: '1975',      troops: '0',       usDead: '58,220', vnDead: '~3,000,000' }
+};
+
+function updateCasualtyCounter(sceneId) {
+  const counter = document.getElementById('casualty-counter');
+  const data = casualtyData[sceneId];
+  if (!data) return;
+
+  counter.classList.add('active');
+
+  const yearEl = document.getElementById('counter-year');
+  const troopsEl = document.getElementById('counter-troops');
+  const usDeadEl = document.getElementById('counter-us-dead');
+  const vnDeadEl = document.getElementById('counter-vn-dead');
+
+  // Flash red when numbers increase
+  const fields = [
+    { el: troopsEl, val: data.troops },
+    { el: usDeadEl, val: data.usDead },
+    { el: vnDeadEl, val: data.vnDead }
+  ];
+
+  fields.forEach(({ el, val }) => {
+    if (el.textContent !== val) {
+      el.classList.add('rising');
+      setTimeout(() => el.classList.remove('rising'), 1200);
+    }
+  });
+
+  yearEl.textContent = data.year;
+  troopsEl.textContent = data.troops;
+  usDeadEl.textContent = data.usDead;
+  vnDeadEl.textContent = data.vnDead;
+}
 
 // ============================================================
 // MAP CONFIGURATION
@@ -1291,6 +1405,8 @@ scene1: {
 
     <div class="historical-note">
       <strong>Historical context:</strong> The Geneva Accords of 1954 divided Vietnam at the 17th parallel. Ho Chi Minh's communist government would control North Vietnam. A U.S.-backed government under Ngo Dinh Diem would control South Vietnam. Nationwide elections to reunify the country were scheduled for 1956 — but they were never held. The Eisenhower administration and Diem feared that Ho Chi Minh, widely regarded as the father of Vietnamese independence, would win. This decision to cancel the elections planted the seeds of everything that followed.
+      <p style="margin-top:0.75rem;">What many Americans did not know — and what makes this story so complicated — is that Ho Chi Minh <em>modeled Vietnam's declaration of independence on the American one.</em> On September 2, 1945, standing before a crowd of 500,000 in Hanoi, Ho began: <strong>"All men are created equal. They are endowed by their Creator with certain inalienable rights; among these are Life, Liberty, and the pursuit of Happiness."</strong> He then asked the crowd: if these truths applied to Americans, why not to the Vietnamese?</p>
+      <p style="margin-top: 0.75rem;"><a class="evidence-link" onclick="openHoChiMinhModal()">&#x1F4C4; View Primary Source: Ho Chi Minh's Declaration of Independence (1945)</a><br><span style="font-size: 0.85rem; color: #999;">George Mason University — The full text of Vietnam's declaration of independence, modeled on America's own founding document.</span></p>
     </div>
 
     <p>As you file your story, an American military attaché pulls you aside. <strong>"This isn't over,"</strong> he says. <strong>"If Vietnam goes communist, then Laos falls, then Cambodia, then Thailand, then Burma. It's dominoes. We can't let that happen."</strong></p>
@@ -1658,7 +1774,7 @@ scene8: {
   narrative: `
     <p>1968 is the year America tears itself apart.</p>
 
-    <p>On <strong>March 31</strong>, President Johnson goes on national television. The nation expects a speech about Vietnam. Instead, Johnson announces: <strong>"I shall not seek, and I will not accept, the nomination of my party for another term as your president."</strong> The Vietnam War has destroyed his presidency.</p>
+    <p>On <strong>March 31</strong>, President Johnson goes on national television. The nation expects a speech about Vietnam. Instead, Johnson announces: <strong>"I shall not seek, and I will not accept, the nomination of my party for another term as your president."</strong> The Vietnam War has destroyed his presidency. <a class="evidence-link" onclick="showLBJModal()" style="font-size:0.9rem;">&#x1F4FA; Watch LBJ's Address to the Nation</a></p>
 
     <p>On <strong>April 4</strong>, Martin Luther King Jr. is assassinated in Memphis. Cities across America erupt in riots.</p>
 
@@ -1672,6 +1788,12 @@ scene8: {
     </figure>
 
     <p>Across the country, the anti-war movement has grown from small campus teach-ins to a mass movement. Young men burn their <span class="vocab-term" data-def="Draft cards were official documents issued by the Selective Service System that classified men for military conscription. Burning a draft card was a federal crime, but it became a prominent form of anti-war protest. The draft fell disproportionately on working-class and minority men — those with college deferments could avoid service.">draft cards</span>. Protesters chant: <em>"Hey, hey, LBJ, how many kids did you kill today?"</em> Families are divided — fathers who fought in World War II against sons who refuse to fight in Vietnam.</p>
+
+    <div class="historical-note">
+      <strong>Dr. Martin Luther King Jr. — "Beyond Vietnam" (April 4, 1967)</strong>
+      <p style="margin-top:0.75rem;">Exactly one year before his assassination, Dr. King delivered one of his most controversial speeches at Riverside Church in New York City. He broke his silence on the war, calling the United States <strong>"the greatest purveyor of violence in the world today."</strong> He drew a direct line between the war abroad and injustice at home — arguing that money spent on bombs in Vietnam was stolen from programs to fight poverty in America, and that the draft sent a disproportionate number of Black and poor young men to fight and die for freedoms they did not fully enjoy at home. The speech cost him allies. The NAACP criticized him. President Johnson felt betrayed. Major newspapers called him naive. But King would not be silent.</p>
+      <p style="margin-top: 0.75rem;"><a class="evidence-link" onclick="openMLKModal()">&#x1F4C4; View Primary Source: "Beyond Vietnam — A Time to Break Silence"</a><br><span style="font-size: 0.85rem; color: #999;">Full text of Dr. King's speech connecting the civil rights movement to opposition to the Vietnam War.</span></p>
+    </div>
 
     <div class="historical-note">
       <strong>Historical context:</strong> The draft — the Selective Service System — was a central driver of opposition to the war. Between 1964 and 1973, approximately 2.2 million men were drafted for service in Vietnam. The draft fell disproportionately on working-class and minority communities. College students could receive deferments, creating a system where those with fewer economic resources were more likely to fight and die. Of the 58,220 Americans killed in Vietnam, a disproportionate number were African American and came from lower-income backgrounds.
@@ -1707,6 +1829,15 @@ scene8: {
     </div>
 
     <p>On <strong>November 5, 1968</strong>, <strong>Richard Nixon</strong> wins the presidential election. He has campaigned on a promise of <strong>"peace with honor"</strong> and claims to have a <strong>"secret plan"</strong> to end the war. Millions of Americans vote for him because they want the war to be over.</p>
+
+    <div class="historical-note">
+      <strong>The Chennault Affair — Did Nixon sabotage peace to win the election?</strong>
+      <p style="margin-top:0.75rem;">In the final weeks before the 1968 election, President Johnson was on the verge of a breakthrough. North Vietnam had agreed to join full peace talks in Paris — talks that could have ended the war years earlier and saved tens of thousands of lives. But at the last moment, South Vietnamese President <strong>Nguyen Van Thieu</strong> abruptly pulled out.</p>
+      <p>What Johnson knew — through CIA intelligence and FBI wiretaps — was explosive. Nixon's campaign had secretly sent <strong>Anna Chennault</strong>, a prominent Republican fundraiser, to deliver a message to Thieu: <em>don't agree to peace before the election.</em> Nixon would win, the message promised, and Thieu would get a better deal under a Republican administration. Thieu withdrew from the talks. The "October surprise" Johnson had hoped would swing the election to Hubert Humphrey never materialized.</p>
+      <p>Johnson was furious. He told Senator Everett Dirksen that what Nixon's campaign had done was <span class="vocab-term" data-def="Treason is the crime of betraying one's country, specifically by levying war against it or giving aid and comfort to its enemies. Under the U.S. Constitution, treason is the only crime specifically defined. Whether Nixon's actions met the legal definition of treason is debated, but deliberately sabotaging peace negotiations during wartime for political gain would be, at minimum, a profound betrayal of the public trust.">treason</span>. But Johnson could not go public without revealing that the U.S. government had been wiretapping the South Vietnamese embassy and surveilling an American political campaign — information that could have caused a constitutional crisis of its own.</p>
+      <p>Nixon won the election by less than 1% of the popular vote. The war continued for <strong>five more years</strong>. More than <strong>22,000 additional American troops</strong> and over a million more Vietnamese died before the Paris Peace Accords were finally signed in 1973 — with terms very similar to what was on the table in 1968.</p>
+      <p style="margin-top: 0.75rem;"><a class="evidence-link" onclick="openChennaultModal()">&#x1F4C4; View Source: The Chennault Affair — Virginia Tech Institute for Policy &amp; Governance</a><br><span style="font-size: 0.85rem; color: #999;">Analysis of how Nixon's campaign secretly sabotaged the 1968 Paris peace talks to gain electoral advantage.</span></p>
+    </div>
 
     <p>Nixon's actual plan, as it will become clear, involves escalating the bombing while slowly withdrawing ground troops — a strategy called <span class="vocab-term" data-def="Vietnamization was Nixon's policy of gradually transferring combat responsibility from American forces to the South Vietnamese military (ARVN) while withdrawing U.S. troops. The goal was to end American involvement while preserving South Vietnam. Critics argued it was a way to continue the war while reducing American casualties enough to quiet domestic opposition.">Vietnamization</span>. It will take four more years, tens of thousands more American deaths, and the expansion of the war into Cambodia and Laos before the last American troops come home.</p>
   `,
@@ -1769,6 +1900,12 @@ scene9: {
     </div>
 
     <p>The Pentagon Papers confirm what many Americans have suspected: their government has been lying about Vietnam for years. The papers reveal that the Gulf of Tonkin incident was manipulated, that the bombing campaigns were known to be ineffective, and that military leaders privately admitted the war was unwinnable even as they publicly claimed progress.</p>
+
+    <div class="historical-note">
+      <strong>John Kerry — Vietnam Veterans Against the War (April 22, 1971)</strong>
+      <p style="margin-top:0.75rem;">Two months before the Pentagon Papers were published, a 27-year-old Navy veteran named <strong>John Kerry</strong> testified before the Senate Foreign Relations Committee on behalf of <strong>Vietnam Veterans Against the War</strong>. Kerry, who had earned a Silver Star, a Bronze Star, and three Purple Hearts, asked the question that defined a generation's disillusionment: <strong>"How do you ask a man to be the last man to die for a mistake?"</strong> His testimony described atrocities committed by American troops and the moral injury inflicted on the soldiers ordered to fight an unwinnable war. It was one of the most powerful antiwar statements of the era — delivered not by a protester, but by a decorated combat veteran.</p>
+      <p style="margin-top: 0.75rem;"><a class="evidence-link" onclick="showKerryModal()">&#x1F4FA; Watch John Kerry's Senate Testimony (1971)</a><br><span style="font-size: 0.85rem; color: #999;">A decorated Navy veteran asks the Senate: "How do you ask a man to be the last man to die for a mistake?"</span></p>
+    </div>
 
     <p>Nixon, furious about the leak, creates a secret unit called the "Plumbers" to stop leaks and discredit Ellsberg. Their activities will eventually lead to the <strong>Watergate scandal</strong> and Nixon's resignation.</p>
   `,
@@ -2042,6 +2179,7 @@ function renderScene(sceneId) {
   if (scene.stop) {
     updateRouteMap(scene.stop, scene.location, scene.date);
   }
+  updateCasualtyCounter(sceneId);
 
   let html = '<div class="fade-in">';
 
@@ -2227,6 +2365,64 @@ function closePentagonPapersModal() {
   document.body.style.overflow = '';
 }
 
+function openHoChiMinhModal() {
+  document.getElementById('hcm-declaration-overlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeHoChiMinhModal() {
+  document.getElementById('hcm-declaration-overlay').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function openMLKModal() {
+  document.getElementById('mlk-overlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeMLKModal() {
+  document.getElementById('mlk-overlay').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function showLBJModal() {
+  const iframe = document.getElementById('lbj-iframe');
+  iframe.src = 'https://www.youtube.com/embed/vOs7BjZrgqY?autoplay=1';
+  document.getElementById('lbj-overlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLBJModal() {
+  const iframe = document.getElementById('lbj-iframe');
+  iframe.src = '';
+  document.getElementById('lbj-overlay').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function showKerryModal() {
+  const iframe = document.getElementById('kerry-iframe');
+  iframe.src = 'https://www.youtube.com/embed/lIP0QtTewSw?autoplay=1';
+  document.getElementById('kerry-overlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeKerryModal() {
+  const iframe = document.getElementById('kerry-iframe');
+  iframe.src = '';
+  document.getElementById('kerry-overlay').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function openChennaultModal() {
+  document.getElementById('chennault-overlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeChennaultModal() {
+  document.getElementById('chennault-overlay').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
 function openTonkinResModal() {
   document.getElementById('tonkin-res-overlay').classList.add('active');
   document.body.style.overflow = 'hidden';
@@ -2282,6 +2478,7 @@ function restartGame() {
   document.getElementById('map-panel').classList.remove('active');
   document.getElementById('game-container').classList.remove('active');
   document.getElementById('game-container').innerHTML = '';
+  document.getElementById('casualty-counter').classList.remove('active');
   document.getElementById('title-screen').style.display = 'flex';
 
   Object.values(mapboxMarkers).forEach(({ element }) => {
@@ -2566,6 +2763,68 @@ ${state.report ? `
     <iframe class="pdf-frame" src="https://www.archives.gov/research/pentagon-papers"></iframe>
     <p class="pdf-note">Source: National Archives and Records Administration. If the page does not load, <a href="https://www.archives.gov/research/pentagon-papers" target="_blank" rel="noopener" style="color:var(--accent);">click here to open it directly</a>.</p>
     <button class="evidence-close-btn" onclick="closePentagonPapersModal()">Close</button>
+  </div>
+</div>
+
+<!-- Ho Chi Minh Declaration Modal -->
+<div class="evidence-overlay" id="hcm-declaration-overlay" onclick="if(event.target===this)closeHoChiMinhModal()">
+  <div class="evidence-modal">
+    <h2>Primary Source Document</h2>
+    <p class="evidence-subtitle">Ho Chi Minh — Declaration of Independence of the Democratic Republic of Vietnam (September 2, 1945)</p>
+    <p style="font-size:0.95rem;line-height:1.6;margin-bottom:1rem;">On September 2, 1945, Ho Chi Minh stood before a crowd of 500,000 in Ba Dinh Square, Hanoi, and declared Vietnam's independence from France and Japan. He opened by quoting the American Declaration of Independence — "All men are created equal" — and the French Declaration of the Rights of Man. He then catalogued decades of French colonial abuses and asked a simple question: if these universal rights applied to Americans and Frenchmen, why not to the Vietnamese? American OSS officers stood on the platform beside him. A Vietnamese band played "The Star-Spangled Banner." It was a moment when history could have taken a very different path.</p>
+    <iframe class="pdf-frame" src="https://historymatters.gmu.edu/d/5139/"></iframe>
+    <p class="pdf-note">Source: George Mason University, History Matters. If the page does not load, <a href="https://historymatters.gmu.edu/d/5139/" target="_blank" rel="noopener" style="color:var(--accent);">click here to open it directly</a>.</p>
+    <button class="evidence-close-btn" onclick="closeHoChiMinhModal()">Close</button>
+  </div>
+</div>
+
+<!-- MLK Beyond Vietnam Modal -->
+<div class="evidence-overlay" id="mlk-overlay" onclick="if(event.target===this)closeMLKModal()">
+  <div class="evidence-modal">
+    <h2>Primary Source Document</h2>
+    <p class="evidence-subtitle">Dr. Martin Luther King Jr. — "Beyond Vietnam: A Time to Break Silence" (April 4, 1967)</p>
+    <p style="font-size:0.95rem;line-height:1.6;margin-bottom:1rem;">Speaking at Riverside Church in New York City exactly one year before his assassination, Dr. King broke his public silence on the Vietnam War. He argued that the war was inseparable from the struggle for civil rights at home — that America could not fund a war abroad while neglecting poverty, education, and racial justice at home. He called the U.S. government "the greatest purveyor of violence in the world today" and described the cruel irony of sending young Black men to fight for freedoms in Southeast Asia that they did not enjoy in Georgia or Harlem. The speech cost him powerful allies, but King refused to separate the moral questions of war and justice.</p>
+    <iframe class="pdf-frame" src="https://www2.hawaii.edu/~freeman/courses/phil100/17.%20MLK%20Beyond%20Vietnam.pdf"></iframe>
+    <p class="pdf-note">Source: University of Hawaii. If the document does not load, <a href="https://www2.hawaii.edu/~freeman/courses/phil100/17.%20MLK%20Beyond%20Vietnam.pdf" target="_blank" rel="noopener" style="color:var(--accent);">click here to open it directly</a>.</p>
+    <button class="evidence-close-btn" onclick="closeMLKModal()">Close</button>
+  </div>
+</div>
+
+<!-- LBJ "I Shall Not Seek" Modal -->
+<div class="broadcast-overlay" id="lbj-overlay">
+  <div class="broadcast-modal">
+    <h2>Presidential Address to the Nation</h2>
+    <div class="broadcast-dateline">March 31, 1968</div>
+    <p class="broadcast-subtitle">President Lyndon B. Johnson addresses the nation about Vietnam — and stuns the country by announcing he will not run for re-election. The Vietnam War has consumed his presidency. The man who passed the Civil Rights Act, the Voting Rights Act, and Medicare has been destroyed by a war he could neither win nor end.</p>
+    <div class="broadcast-frame">
+      <iframe src="" id="lbj-iframe" allowfullscreen allow="autoplay; fullscreen"></iframe>
+    </div>
+    <button class="broadcast-close-btn" onclick="closeLBJModal()">Continue</button>
+  </div>
+</div>
+
+<!-- John Kerry Senate Testimony Modal -->
+<div class="broadcast-overlay" id="kerry-overlay">
+  <div class="broadcast-modal">
+    <h2>Senate Foreign Relations Committee</h2>
+    <div class="broadcast-dateline">April 22, 1971</div>
+    <p class="broadcast-subtitle">John Kerry, a 27-year-old decorated Navy veteran, testifies before the Senate on behalf of Vietnam Veterans Against the War. His question — "How do you ask a man to be the last man to die for a mistake?" — becomes one of the defining statements of the antiwar movement. Kerry would later serve as a U.S. Senator and Secretary of State.</p>
+    <div class="broadcast-frame">
+      <iframe src="" id="kerry-iframe" allowfullscreen allow="autoplay; fullscreen"></iframe>
+    </div>
+    <button class="broadcast-close-btn" onclick="closeKerryModal()">Continue</button>
+  </div>
+</div>
+
+<!-- Chennault Affair Modal -->
+<div class="evidence-overlay" id="chennault-overlay" onclick="if(event.target===this)closeChennaultModal()">
+  <div class="evidence-modal">
+    <h2>Historical Analysis</h2>
+    <p class="evidence-subtitle">The Chennault Affair — Virginia Tech Institute for Policy & Governance</p>
+    <p style="font-size:0.95rem;line-height:1.6;margin-bottom:1rem;">In October 1968, President Johnson was close to achieving a breakthrough in the Paris peace talks that could have ended the Vietnam War. But Nixon's campaign, through intermediary Anna Chennault, secretly contacted South Vietnamese President Thieu and urged him to boycott the talks — promising a better deal under a Nixon presidency. Johnson learned of the back channel through CIA and FBI intelligence, and privately called it treason. But he could not go public without exposing U.S. surveillance of a friendly government and an American political campaign. Nixon won by a razor-thin margin. The war lasted five more years. This article examines the evidence and the devastating consequences of putting political ambition above peace.</p>
+    <iframe class="pdf-frame" src="https://ipg.vt.edu/DirectorsCorner/Soundings/Soundings100817.html"></iframe>
+    <p class="pdf-note">Source: Virginia Tech Institute for Policy & Governance. If the page does not load, <a href="https://ipg.vt.edu/DirectorsCorner/Soundings/Soundings100817.html" target="_blank" rel="noopener" style="color:var(--accent);">click here to open it directly</a>.</p>
+    <button class="evidence-close-btn" onclick="closeChennaultModal()">Close</button>
   </div>
 </div>
 
