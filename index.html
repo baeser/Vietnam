@@ -795,6 +795,110 @@
   }
   .broadcast-close-btn:hover { background: var(--accent-light); }
 
+  /* ===== DRAFT LOTTERY WIDGET ===== */
+  .draft-lottery {
+    background: #1a2a4a;
+    border-radius: 6px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    color: #eceae4;
+    font-family: 'Source Sans Pro', sans-serif;
+  }
+  .draft-lottery h4 {
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.25rem;
+    color: #fff;
+  }
+  .draft-lottery .draft-subtitle {
+    font-size: 0.85rem;
+    color: var(--gold);
+    font-style: italic;
+    margin-bottom: 1rem;
+  }
+  .draft-lottery .draft-instructions {
+    font-size: 0.9rem;
+    color: #b8b4a8;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+  }
+  .draft-lottery .draft-input-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+  }
+  .draft-lottery select {
+    padding: 0.5rem 0.75rem;
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 1rem;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-radius: 4px;
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    cursor: pointer;
+  }
+  .draft-lottery select option {
+    background: #1a2a4a;
+    color: #fff;
+  }
+  .draft-lottery .draft-btn {
+    padding: 0.5rem 1.5rem;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .draft-lottery .draft-btn:hover { background: var(--accent-light); }
+  .draft-lottery .draft-result {
+    display: none;
+    margin-top: 1rem;
+    padding: 1rem 1.25rem;
+    border-radius: 4px;
+    line-height: 1.6;
+  }
+  .draft-lottery .draft-result .draft-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0.25rem 0;
+  }
+  .draft-lottery .draft-result .draft-status {
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .draft-lottery .draft-result.drafted {
+    display: block;
+    background: rgba(183, 28, 28, 0.3);
+    border: 1px solid rgba(183, 28, 28, 0.6);
+  }
+  .draft-lottery .draft-result.drafted .draft-number { color: #ff6b6b; }
+  .draft-lottery .draft-result.drafted .draft-status { color: #ff6b6b; }
+  .draft-lottery .draft-result.safe {
+    display: block;
+    background: rgba(45, 80, 22, 0.3);
+    border: 1px solid rgba(45, 80, 22, 0.6);
+  }
+  .draft-lottery .draft-result.safe .draft-number { color: #81c784; }
+  .draft-lottery .draft-result.safe .draft-status { color: #81c784; }
+  .draft-lottery .draft-context {
+    font-size: 0.85rem;
+    color: #b8b4a8;
+    margin-top: 0.75rem;
+    line-height: 1.5;
+    font-style: italic;
+  }
+
   /* ===== EVIDENCE / DOCUMENT MODAL ===== */
   .evidence-link {
     color: var(--accent);
@@ -1571,6 +1675,35 @@ scene8: {
 
     <div class="historical-note">
       <strong>Historical context:</strong> The draft — the Selective Service System — was a central driver of opposition to the war. Between 1964 and 1973, approximately 2.2 million men were drafted for service in Vietnam. The draft fell disproportionately on working-class and minority communities. College students could receive deferments, creating a system where those with fewer economic resources were more likely to fight and die. Of the 58,220 Americans killed in Vietnam, a disproportionate number were African American and came from lower-income backgrounds.
+      <p style="margin-top:0.75rem;">On December 1, 1969, the Selective Service held a nationally televised <strong>draft lottery</strong> — the first since World War II. Each day of the year was written on a slip of paper, placed in a blue capsule, and drawn from a glass jar. The order in which your birthday was drawn became your draft number. Men with numbers 1–195 were called to serve. Across America, young men gathered around televisions and radios, waiting to hear their fate.</p>
+    </div>
+
+    <div class="draft-lottery">
+      <h4>The 1969 Draft Lottery</h4>
+      <div class="draft-subtitle">What would your number have been?</div>
+      <div class="draft-instructions">Enter your birthday to find out your draft lottery number from the December 1, 1969 drawing. Numbers 1–195 were called to serve in Vietnam.</div>
+      <div class="draft-input-row">
+        <select id="draft-month">
+          <option value="">Month</option>
+          <option value="1">January</option>
+          <option value="2">February</option>
+          <option value="3">March</option>
+          <option value="4">April</option>
+          <option value="5">May</option>
+          <option value="6">June</option>
+          <option value="7">July</option>
+          <option value="8">August</option>
+          <option value="9">September</option>
+          <option value="10">October</option>
+          <option value="11">November</option>
+          <option value="12">December</option>
+        </select>
+        <select id="draft-day">
+          <option value="">Day</option>
+        </select>
+        <button class="draft-btn" onclick="checkDraftNumber()">Check My Number</button>
+      </div>
+      <div class="draft-result" id="draft-result"></div>
     </div>
 
     <p>On <strong>November 5, 1968</strong>, <strong>Richard Nixon</strong> wins the presidential election. He has campaigned on a promise of <strong>"peace with honor"</strong> and claims to have a <strong>"secret plan"</strong> to end the war. Millions of Americans vote for him because they want the war to be over.</p>
@@ -1781,6 +1914,113 @@ epilogue: {
 // ============================================================
 // GAME ENGINE
 // ============================================================
+// ============================================================
+// 1969 DRAFT LOTTERY DATA
+// Actual numbers drawn December 1, 1969. Index = day of year (0-365).
+// Source: Selective Service System records.
+// ============================================================
+const draftLotteryNumbers = [
+// Jan 1-31 (verified from Selective Service records)
+305,159,251,215,101,224,306,199,194,325,329,221,318,238,17,121,235,140,58,280,
+186,337,118,59,52,92,355,77,349,164,211,
+// Feb 1-29
+86,144,297,210,214,347,91,181,338,216,150,68,152,4,89,212,189,292,25,302,
+363,290,57,236,179,365,205,299,285,
+// Mar 1-31
+108,29,267,275,293,139,122,213,317,323,136,300,259,354,169,166,33,332,200,239,
+334,265,256,258,343,170,268,223,362,217,30,
+// Apr 1-30
+32,271,83,81,269,253,147,312,219,218,14,346,124,231,273,148,260,90,336,345,
+62,316,252,2,351,340,74,262,191,208,
+// May 1-31
+330,298,40,276,364,155,35,321,197,65,37,133,295,178,130,55,112,278,75,183,
+250,326,319,31,361,357,296,308,226,103,313,
+// Jun 1-30
+249,228,301,20,28,110,85,366,335,206,134,272,69,356,180,274,73,341,104,360,
+60,247,109,358,137,22,64,222,353,209,
+// Jul 1-31
+93,350,115,279,188,327,50,13,277,284,248,15,42,331,322,120,98,190,227,187,
+27,153,172,23,67,303,289,88,270,287,193,
+// Aug 1-31
+111,45,261,145,54,114,168,48,106,21,324,142,307,198,102,44,154,141,311,344,
+291,339,116,36,286,245,352,167,61,333,11,
+// Sep 1-30
+225,161,49,232,82,6,8,184,263,71,158,242,175,1,113,207,255,246,177,63,
+204,160,119,195,149,18,233,257,151,315,
+// Oct 1-31
+359,125,244,202,24,87,234,283,342,220,237,72,138,294,171,254,288,5,241,192,
+243,117,201,196,176,7,264,94,229,38,79,
+// Nov 1-30
+19,34,348,266,310,76,51,97,80,282,46,66,126,127,131,107,143,146,203,185,
+156,9,182,230,132,309,47,281,99,174,
+// Dec 1-31
+129,328,157,165,56,10,12,105,43,41,39,314,163,26,320,96,304,128,240,135,
+70,53,162,95,84,173,78,123,16,3,100
+];
+
+// Maps month (1-12) and day (1-31) to day-of-year index (0-365)
+const daysInMonth = [31,29,31,30,31,30,31,31,30,31,30,31];
+
+function getDayOfYear(month, day) {
+  let doy = 0;
+  for (let m = 0; m < month - 1; m++) {
+    doy += daysInMonth[m];
+  }
+  return doy + day - 1;
+}
+
+function populateDraftDays() {
+  const monthSel = document.getElementById('draft-month');
+  const daySel = document.getElementById('draft-day');
+  if (!monthSel || !daySel) return;
+  const month = parseInt(monthSel.value);
+  daySel.innerHTML = '<option value="">Day</option>';
+  if (!month) return;
+  const maxDay = daysInMonth[month - 1];
+  for (let d = 1; d <= maxDay; d++) {
+    daySel.innerHTML += `<option value="${d}">${d}</option>`;
+  }
+}
+
+function checkDraftNumber() {
+  const month = parseInt(document.getElementById('draft-month').value);
+  const day = parseInt(document.getElementById('draft-day').value);
+  const resultEl = document.getElementById('draft-result');
+
+  if (!month || !day) {
+    alert('Please select both a month and a day.');
+    return;
+  }
+
+  const doy = getDayOfYear(month, day);
+  const number = draftLotteryNumbers[doy];
+  const drafted = number <= 195;
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+  resultEl.className = 'draft-result ' + (drafted ? 'drafted' : 'safe');
+  resultEl.innerHTML = `
+    <div style="font-size:0.85rem;color:#b8b4a8;">Birthday: ${monthNames[month-1]} ${day}</div>
+    <div class="draft-number">#${number}</div>
+    <div class="draft-status">${drafted ? 'DRAFTED — Called to Serve' : 'Not Called — Number Above 195'}</div>
+    <div class="draft-context">${drafted
+      ? `With lottery number ${number}, you would have been called to report for a physical examination and, if found fit, inducted into the U.S. Army. You would receive basic training and likely be deployed to Vietnam. The average tour was 12 months. You would be ${number <= 100 ? 'among the first called — your induction notice would arrive within weeks.' : 'called within several months of the drawing.'}`
+      : `With lottery number ${number}, you would not have been called to serve in 1970. Numbers above 195 were not reached. But you would have spent months not knowing — the highest number actually called was not announced until well into 1970. The waiting itself was a form of psychological burden that defined a generation.`
+    }</div>
+  `;
+}
+
+// Wire up month dropdown to populate days dynamically
+document.addEventListener('click', function(e) {
+  if (e.target && e.target.id === 'draft-month') {
+    setTimeout(function() { populateDraftDays(); }, 0);
+  }
+});
+document.addEventListener('change', function(e) {
+  if (e.target && e.target.id === 'draft-month') {
+    populateDraftDays();
+  }
+});
+
 function startGame() {
   document.getElementById('title-screen').style.display = 'none';
   document.getElementById('map-panel').classList.add('active');
