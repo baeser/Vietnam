@@ -1765,6 +1765,7 @@ scene9: {
 
     <div class="historical-note">
       <strong>Historical context:</strong> In June 1971, <strong>Daniel Ellsberg</strong>, a former Defense Department analyst, leaked the <strong>Pentagon Papers</strong> to the New York Times. The papers were a 7,000-page secret history of U.S. involvement in Vietnam, commissioned by Secretary McNamara. They revealed that the government had systematically lied to Congress and the public about the war — about the reasons for involvement, about the prospects for victory, and about the scale of the fighting. The papers showed that four successive administrations had expanded the war while telling the public the opposite. The Nixon administration attempted to block publication, but the Supreme Court ruled in favor of the press in <em>New York Times Co. v. United States</em>.
+      <p style="margin-top: 0.75rem;"><a class="evidence-link" onclick="openPentagonPapersModal()">&#x1F4C4; View Primary Source: The Pentagon Papers — Complete Collection</a><br><span style="font-size: 0.85rem; color: #999;">National Archives — The full 7,000-page secret history of U.S. involvement in Vietnam that Daniel Ellsberg leaked to the press, proving the government had systematically lied about the war.</span></p>
     </div>
 
     <p>The Pentagon Papers confirm what many Americans have suspected: their government has been lying about Vietnam for years. The papers reveal that the Gulf of Tonkin incident was manipulated, that the bombing campaigns were known to be ineffective, and that military leaders privately admitted the war was unwinnable even as they publicly claimed progress.</p>
@@ -2216,6 +2217,16 @@ function closeHerrickModal() {
   document.body.style.overflow = '';
 }
 
+function openPentagonPapersModal() {
+  document.getElementById('pentagon-papers-overlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closePentagonPapersModal() {
+  document.getElementById('pentagon-papers-overlay').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
 function openTonkinResModal() {
   document.getElementById('tonkin-res-overlay').classList.add('active');
   document.body.style.overflow = 'hidden';
@@ -2543,6 +2554,18 @@ ${state.report ? `
     <iframe class="pdf-frame" src="https://www.archives.gov/milestone-documents/tonkin-gulf-resolution"></iframe>
     <p class="pdf-note">Source: National Archives, Milestone Documents. If the page does not load, <a href="https://www.archives.gov/milestone-documents/tonkin-gulf-resolution" target="_blank" rel="noopener" style="color:var(--accent);">click here to open it directly</a>.</p>
     <button class="evidence-close-btn" onclick="closeTonkinResModal()">Close</button>
+  </div>
+</div>
+
+<!-- Pentagon Papers Modal -->
+<div class="evidence-overlay" id="pentagon-papers-overlay" onclick="if(event.target===this)closePentagonPapersModal()">
+  <div class="evidence-modal">
+    <h2>Primary Source Collection</h2>
+    <p class="evidence-subtitle">The Pentagon Papers — National Archives</p>
+    <p style="font-size:0.95rem;line-height:1.6;margin-bottom:1rem;">In 1967, Secretary of Defense Robert McNamara commissioned a secret study of U.S. involvement in Vietnam. The result was a 7,000-page document officially titled <em>"United States–Vietnam Relations, 1945–1967: A Study Prepared by the Department of Defense."</em> The papers revealed that four successive presidential administrations had systematically lied to Congress and the American public about the war — its origins, its progress, and its prospects. Daniel Ellsberg, a military analyst who had worked on the study, leaked it to the New York Times in June 1971. The Nixon administration tried to block publication, but the Supreme Court ruled in favor of the press. The Pentagon Papers shattered public trust in the government and strengthened the case for ending the war.</p>
+    <iframe class="pdf-frame" src="https://www.archives.gov/research/pentagon-papers"></iframe>
+    <p class="pdf-note">Source: National Archives and Records Administration. If the page does not load, <a href="https://www.archives.gov/research/pentagon-papers" target="_blank" rel="noopener" style="color:var(--accent);">click here to open it directly</a>.</p>
+    <button class="evidence-close-btn" onclick="closePentagonPapersModal()">Close</button>
   </div>
 </div>
 
