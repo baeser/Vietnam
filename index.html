@@ -795,6 +795,85 @@
   }
   .broadcast-close-btn:hover { background: var(--accent-light); }
 
+  /* ===== EVIDENCE / DOCUMENT MODAL ===== */
+  .evidence-link {
+    color: var(--accent);
+    text-decoration: underline;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  .evidence-link:hover { color: var(--accent-light); }
+  .evidence-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.8);
+    z-index: 1100;
+    overflow-y: auto;
+    padding: 2rem 1rem;
+  }
+  .evidence-overlay.active {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+  }
+  .evidence-modal {
+    background: #f5f3ed;
+    background-image: linear-gradient(to bottom, #f5f3ed, #ebe8de);
+    max-width: 850px;
+    width: 100%;
+    border-radius: 4px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+    padding: 2rem;
+    font-family: 'Source Sans Pro', sans-serif;
+    color: #1a1a1a;
+    margin: 1rem auto;
+  }
+  .evidence-modal h2 {
+    font-family: 'Libre Baskerville', serif;
+    text-align: center;
+    font-size: 1.3rem;
+    margin-bottom: 0.25rem;
+    color: var(--accent);
+  }
+  .evidence-modal .evidence-subtitle {
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--text-light);
+    font-style: italic;
+    margin-bottom: 1rem;
+  }
+  .evidence-modal .pdf-frame {
+    width: 100%;
+    height: 600px;
+    border: 2px solid var(--bg-dark);
+    border-radius: 4px;
+    background: #fff;
+  }
+  .evidence-modal .pdf-note {
+    font-size: 0.8rem;
+    color: var(--text-light);
+    margin-top: 0.75rem;
+    line-height: 1.5;
+    font-style: italic;
+  }
+  .evidence-close-btn {
+    display: block;
+    margin: 1.5rem auto 0;
+    padding: 0.7rem 2.5rem;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  .evidence-close-btn:hover { background: var(--accent-light); }
+
   /* ===== RESPONSIVE ===== */
   @media (max-width: 700px) {
     #title-screen h1 { font-size: 2.2rem; }
@@ -1208,6 +1287,8 @@ scene3: {
 
     <div class="historical-note">
       <strong>Historical context:</strong> On August 7, 1964, Congress passed the <strong>Gulf of Tonkin Resolution</strong>, authorizing the President to use military force in Southeast Asia without a formal declaration of war. It passed 416–0 in the House and 88–2 in the Senate. Only Senators Wayne Morse of Oregon and Ernest Gruening of Alaska voted no. Morse declared: "I believe that history will record we have made a great mistake." Declassified documents later confirmed that the second attack almost certainly never happened. Secretary McNamara later admitted: "We were wrong, terribly wrong."
+      <p style="margin-top: 0.75rem;"><a class="evidence-link" onclick="openHerrickModal()">&#x1F4C4; View Declassified Document: Captain Herrick's Cable from the USS Maddox</a><br><span style="font-size: 0.85rem; color: #999;">U.S. Department of Defense — The original message from the commander on scene, expressing doubt about the second attack that became the justification for war.</span></p>
+      <p style="margin-top: 0.75rem;"><a class="evidence-link" onclick="openTonkinResModal()">&#x1F4C4; View Primary Source: The Gulf of Tonkin Resolution</a><br><span style="font-size: 0.85rem; color: #999;">National Archives — The joint resolution of Congress that authorized the President to use military force in Southeast Asia without a formal declaration of war.</span></p>
     </div>
 
     <p>You have sources in the Navy. You have seen Captain Herrick's cable expressing doubt. You know the evidence for the second attack is shaky at best. But the President has already ordered air strikes, and Congress has just given him the authority to wage war.</p>
@@ -1761,7 +1842,11 @@ function renderScene(sceneId) {
     });
     html += '</div>';
   } else if (scene.auto_next) {
-    html += `<button class="continue-btn" onclick="renderScene('${scene.auto_next}')">Continue</button>`;
+    if (sceneId === 'scene6') {
+      html += `<button class="continue-btn" onclick="showCronkiteModal()">Continue</button>`;
+    } else {
+      html += `<button class="continue-btn" onclick="renderScene('${scene.auto_next}')">Continue</button>`;
+    }
   } else if (scene.isEpilogue) {
     html += `
     <div class="reflection-section">
@@ -1874,6 +1959,41 @@ function closeBroadcastModal() {
     applyChoice(state._pendingChoice);
     state._pendingChoice = null;
   }
+}
+
+function openHerrickModal() {
+  document.getElementById('herrick-overlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeHerrickModal() {
+  document.getElementById('herrick-overlay').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function openTonkinResModal() {
+  document.getElementById('tonkin-res-overlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeTonkinResModal() {
+  document.getElementById('tonkin-res-overlay').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function showCronkiteModal() {
+  const iframe = document.getElementById('cronkite-iframe');
+  iframe.src = 'https://www.youtube.com/embed/gc-lyAG4bkM?autoplay=1';
+  document.getElementById('cronkite-overlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeCronkiteModal() {
+  const iframe = document.getElementById('cronkite-iframe');
+  iframe.src = '';
+  document.getElementById('cronkite-overlay').classList.remove('active');
+  document.body.style.overflow = '';
+  renderScene('scene7');
 }
 
 function goBack() {
@@ -2148,6 +2268,43 @@ ${state.report ? `
       </div>
     </div>
     <button class="broadcast-close-btn" onclick="closeBroadcastModal()">Continue</button>
+  </div>
+</div>
+
+<!-- Herrick Cable Modal -->
+<div class="evidence-overlay" id="herrick-overlay" onclick="if(event.target===this)closeHerrickModal()">
+  <div class="evidence-modal">
+    <h2>Declassified Document</h2>
+    <p class="evidence-subtitle">Captain Herrick's Cable from the USS Maddox — August 4, 1964</p>
+    <p style="font-size:0.95rem;line-height:1.6;margin-bottom:1rem;">This is the original message sent by Captain John Herrick, the commander on scene in the Gulf of Tonkin, expressing serious doubt about the reported second attack on August 4, 1964. Despite this cable, the Johnson administration presented the attack as confirmed fact to Congress, which then passed the Gulf of Tonkin Resolution authorizing military force.</p>
+    <iframe class="pdf-frame" src="https://media.defense.gov/2021/Jul/14/2002762863/-1/-1/0/REL1_HERRICK.PDF"></iframe>
+    <p class="pdf-note">Source: U.S. Department of Defense, declassified. If the document does not load, <a href="https://media.defense.gov/2021/Jul/14/2002762863/-1/-1/0/REL1_HERRICK.PDF" target="_blank" rel="noopener" style="color:var(--accent);">click here to open it directly</a>.</p>
+    <button class="evidence-close-btn" onclick="closeHerrickModal()">Close</button>
+  </div>
+</div>
+
+<!-- Tonkin Resolution Modal -->
+<div class="evidence-overlay" id="tonkin-res-overlay" onclick="if(event.target===this)closeTonkinResModal()">
+  <div class="evidence-modal">
+    <h2>Primary Source Document</h2>
+    <p class="evidence-subtitle">The Gulf of Tonkin Resolution — August 7, 1964</p>
+    <p style="font-size:0.95rem;line-height:1.6;margin-bottom:1rem;">The joint resolution of Congress (H.J. RES 1145) that authorized the President "to take all necessary measures to repel any armed attack against the forces of the United States and to prevent further aggression." Passed 416–0 in the House and 88–2 in the Senate, this resolution became the legal basis for the entire Vietnam War. Congress did not formally declare war — this resolution was used instead.</p>
+    <iframe class="pdf-frame" src="https://www.archives.gov/milestone-documents/tonkin-gulf-resolution"></iframe>
+    <p class="pdf-note">Source: National Archives, Milestone Documents. If the page does not load, <a href="https://www.archives.gov/milestone-documents/tonkin-gulf-resolution" target="_blank" rel="noopener" style="color:var(--accent);">click here to open it directly</a>.</p>
+    <button class="evidence-close-btn" onclick="closeTonkinResModal()">Close</button>
+  </div>
+</div>
+
+<!-- Cronkite Editorial Modal -->
+<div class="broadcast-overlay" id="cronkite-overlay">
+  <div class="broadcast-modal">
+    <h2>CBS News Special Report</h2>
+    <div class="broadcast-dateline">February 27, 1968</div>
+    <p class="broadcast-subtitle">Walter Cronkite — "the most trusted man in America" — returns from Vietnam and delivers an unprecedented editorial on the CBS Evening News. For the first time, the anchor of a major network news broadcast tells the American people the war cannot be won. President Johnson reportedly responds: "If I've lost Cronkite, I've lost Middle America."</p>
+    <div class="broadcast-frame">
+      <iframe src="" id="cronkite-iframe" allowfullscreen allow="autoplay; fullscreen"></iframe>
+    </div>
+    <button class="broadcast-close-btn" onclick="closeCronkiteModal()">Continue</button>
   </div>
 </div>
 
