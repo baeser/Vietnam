@@ -1,0 +1,2136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vietnam: 1954–1975</title>
+<link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+Pro:wght@400;600;700&display=swap');
+
+  :root {
+    --bg: #eceae4;
+    --bg-dark: #d8d4ca;
+    --text: #1a1a1a;
+    --text-light: #4a4a4a;
+    --accent: #2d5016;
+    --accent-light: #3d6b20;
+    --blue: #1a2a4a;
+    --gold: #b8960c;
+    --card-bg: #fafaf6;
+    --shadow: rgba(0, 0, 0, 0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Libre Baskerville', Georgia, serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.8;
+  }
+
+  /* ===== TITLE SCREEN ===== */
+  #title-screen {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem;
+    background: linear-gradient(180deg, #0a0f08 0%, #141e10 40%, #1a2816 100%);
+    color: #eceae4;
+  }
+
+  #title-screen h1 {
+    font-size: 3.5rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+  }
+
+  #title-screen .subtitle {
+    font-size: 1.3rem;
+    font-style: italic;
+    color: var(--gold);
+    margin-bottom: 2rem;
+  }
+
+  #title-screen .intro-text {
+    max-width: 650px;
+    font-size: 1rem;
+    line-height: 1.9;
+    color: #b8b4a8;
+    margin-bottom: 2.5rem;
+  }
+
+  #title-screen .intro-text em {
+    color: var(--gold);
+    font-style: italic;
+  }
+
+  .btn-start {
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 1rem 3rem;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .btn-start:hover { background: var(--accent-light); }
+
+  /* ===== MAP PANEL ===== */
+  #map-panel {
+    position: relative;
+    z-index: 100;
+    display: none;
+    background: #1a2816;
+    border-bottom: 3px solid var(--accent);
+    overflow: hidden;
+  }
+
+  #map-panel.active { display: block; }
+
+  .map-wrapper {
+    position: relative;
+    max-width: 1000px;
+    margin: 0 auto;
+    height: 500px;
+    overflow: hidden;
+    background: #1a2816;
+    transition: height 0.4s ease;
+  }
+
+  #mapbox-container {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Mapbox marker styles */
+  .mapbox-marker {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: rgba(40, 60, 40, 0.6);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+    transition: background 0.4s ease, border 0.4s ease, box-shadow 0.4s ease;
+    position: relative;
+  }
+
+  .mapbox-marker.visited {
+    background: var(--blue);
+    border: 2px solid rgba(255, 255, 255, 0.7);
+    box-shadow: 0 0 6px rgba(26, 42, 74, 0.5);
+  }
+
+  .mapbox-marker.current {
+    background: #2d5016;
+    border: 2px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 0 0 12px rgba(45, 80, 22, 0.8), 0 0 24px rgba(45, 80, 22, 0.4);
+    animation: markerPulse 2s ease-in-out infinite;
+  }
+
+  @keyframes markerPulse {
+    0%, 100% { box-shadow: 0 0 12px rgba(45, 80, 22, 0.8), 0 0 24px rgba(45, 80, 22, 0.4); }
+    50% { box-shadow: 0 0 20px rgba(45, 80, 22, 1), 0 0 40px rgba(45, 80, 22, 0.6); }
+  }
+
+  .mapbox-marker-label {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 4px;
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.4);
+    white-space: nowrap;
+    text-align: center;
+    pointer-events: none;
+    transition: color 0.4s;
+  }
+
+  .mapbox-marker.visited .mapbox-marker-label,
+  .mapbox-marker.current .mapbox-marker-label {
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  /* Danger markers on Mapbox */
+  .mapbox-danger-marker {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    opacity: 0;
+    transition: opacity 0.6s;
+    pointer-events: none;
+  }
+
+  .mapbox-danger-marker.visible {
+    opacity: 1;
+    animation: dangerPulse 1.5s ease-in-out infinite;
+  }
+
+  .mapbox-danger-marker.danger-explosion {
+    background: radial-gradient(circle, rgba(255, 60, 0, 0.9), rgba(183, 28, 28, 0.7));
+    box-shadow: 0 0 16px rgba(255, 60, 0, 0.6);
+  }
+
+  .mapbox-danger-marker.danger-fire {
+    background: radial-gradient(circle, rgba(255, 120, 0, 0.9), rgba(200, 80, 0, 0.7));
+    box-shadow: 0 0 16px rgba(255, 120, 0, 0.6);
+  }
+
+  .mapbox-danger-marker.danger-warning {
+    background: radial-gradient(circle, rgba(255, 180, 0, 0.9), rgba(200, 120, 0, 0.7));
+    box-shadow: 0 0 16px rgba(255, 180, 0, 0.6);
+  }
+
+  @keyframes dangerPulse {
+    0%, 100% { box-shadow: 0 0 12px rgba(255, 60, 0, 0.6); }
+    50% { box-shadow: 0 0 24px rgba(255, 60, 0, 1), 0 0 40px rgba(255, 60, 0, 0.5); }
+  }
+
+  /* Map legend */
+  .map-legend {
+    position: absolute;
+    bottom: 8px;
+    left: 12px;
+    display: flex;
+    gap: 16px;
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 0.65rem;
+    color: rgba(255,255,255,0.7);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: rgba(0,0,0,0.6);
+    padding: 4px 10px;
+    border-radius: 3px;
+    z-index: 10;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  .legend-dot.green { background: #2d5016; }
+  .legend-dot.blue { background: var(--blue); }
+
+  /* Map location callout */
+  .map-callout {
+    position: absolute;
+    top: 10px;
+    right: 14px;
+    font-family: 'Source Sans Pro', sans-serif;
+    text-align: right;
+    z-index: 10;
+  }
+
+  .callout-location {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #66bb6a;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+  }
+
+  .callout-date {
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.7);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+  }
+
+  /* ===== MAIN CONTENT ===== */
+  #game-container {
+    max-width: 750px;
+    margin: 0 auto;
+    padding: 2.5rem 2rem 4rem;
+    display: none;
+  }
+
+  #game-container.active { display: block; }
+
+  .scene-location {
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .scene-date {
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 0.8rem;
+    color: var(--text-light);
+    margin-bottom: 1.5rem;
+  }
+
+  .scene-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 1.5rem;
+    line-height: 1.3;
+  }
+
+  .scene-narrative { margin-bottom: 2rem; }
+
+  .scene-photo {
+    width: 100%;
+    margin: 1.5rem 0;
+    border: 3px solid var(--bg-dark);
+    box-shadow: 0 2px 12px var(--shadow);
+  }
+
+  .scene-photo img {
+    width: 100%;
+    display: block;
+    filter: grayscale(30%) sepia(5%);
+  }
+
+  .scene-photo figcaption {
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 0.75rem;
+    color: var(--text-light);
+    padding: 0.5rem 0.75rem;
+    background: var(--bg-dark);
+    line-height: 1.4;
+    font-style: italic;
+  }
+
+  .scene-narrative p {
+    margin-bottom: 1.2rem;
+    font-size: 1.05rem;
+  }
+
+  .scene-narrative .historical-note {
+    background: var(--bg-dark);
+    border-left: 3px solid var(--gold);
+    padding: 1rem 1.25rem;
+    margin: 1.5rem 0;
+    font-size: 0.95rem;
+    font-style: italic;
+    color: var(--text-light);
+  }
+
+  .scene-narrative .vocab-term {
+    border-bottom: 1px dashed var(--gold);
+    cursor: help;
+    position: relative;
+  }
+
+  .scene-narrative .vocab-term:hover::after {
+    content: attr(data-def);
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    background: var(--blue);
+    color: #fff;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+    font-style: normal;
+    border-radius: 4px;
+    width: 280px;
+    z-index: 10;
+    line-height: 1.5;
+  }
+
+  .choice-prompt {
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    color: var(--blue);
+  }
+
+  .choices {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .choice-btn {
+    font-family: 'Source Sans Pro', sans-serif;
+    text-align: left;
+    padding: 1.1rem 1.5rem;
+    background: var(--card-bg);
+    border: 2px solid var(--bg-dark);
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--text);
+    transition: all 0.2s;
+  }
+
+  .choice-btn:hover {
+    border-color: var(--accent);
+    background: #fff;
+  }
+
+  .choice-btn .choice-label {
+    font-weight: 700;
+    color: var(--accent);
+    margin-right: 0.5rem;
+  }
+
+  .consequence {
+    background: var(--card-bg);
+    border-left: 3px solid var(--accent);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem;
+    font-size: 1rem;
+    line-height: 1.8;
+  }
+
+  .consequence p { margin-bottom: 0.8rem; }
+  .consequence p:last-child { margin-bottom: 0; }
+
+  .continue-btn {
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 0.85rem 2.5rem;
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    transition: background 0.2s;
+  }
+
+  .continue-btn:hover { background: #2a3a5e; }
+
+  .nav-buttons {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .back-btn {
+    display: inline-block;
+    background: none;
+    border: 1px solid #999;
+    color: #666;
+    padding: 0.4rem 1rem;
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 0.85rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .back-btn:hover {
+    background: #eee;
+    color: #333;
+    border-color: #666;
+  }
+
+  .epilogue-section { margin-bottom: 2rem; }
+
+  .epilogue-section h3 {
+    font-size: 1.15rem;
+    margin-bottom: 0.75rem;
+    color: var(--blue);
+  }
+
+  .epilogue-section ul { padding-left: 1.5rem; }
+
+  .epilogue-section li {
+    margin-bottom: 0.6rem;
+    font-size: 1rem;
+  }
+
+  .restart-btn {
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 0.85rem 2.5rem;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 1rem;
+    transition: background 0.2s;
+  }
+
+  .restart-btn:hover { background: var(--accent-light); }
+
+  /* ===== REFLECTION FORM ===== */
+  .reflection-section {
+    margin-top: 3rem;
+    padding-top: 2.5rem;
+    border-top: 2px solid var(--bg-dark);
+  }
+
+  .reflection-section h2 {
+    font-size: 1.5rem;
+    color: var(--blue);
+    margin-bottom: 0.5rem;
+  }
+
+  .reflection-intro {
+    font-size: 0.95rem;
+    color: var(--text-light);
+    margin-bottom: 2rem;
+    font-style: italic;
+  }
+
+  .reflection-field { margin-bottom: 2rem; }
+
+  .reflection-field label {
+    display: block;
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+  }
+
+  .reflection-field textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 0.85rem 1rem;
+    font-family: 'Libre Baskerville', Georgia, serif;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--text);
+    background: var(--card-bg);
+    border: 2px solid var(--bg-dark);
+    resize: vertical;
+    transition: border-color 0.2s;
+  }
+
+  .reflection-field textarea:focus {
+    outline: none;
+    border-color: var(--blue);
+  }
+
+  .reflection-field textarea::placeholder {
+    color: #a09888;
+    font-style: italic;
+  }
+
+  .name-field { margin-bottom: 2rem; }
+
+  .name-field label {
+    display: block;
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.4rem;
+  }
+
+  .name-field input {
+    width: 100%;
+    max-width: 400px;
+    padding: 0.7rem 1rem;
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 1rem;
+    color: var(--text);
+    background: var(--card-bg);
+    border: 2px solid var(--bg-dark);
+    transition: border-color 0.2s;
+  }
+
+  .name-field input:focus {
+    outline: none;
+    border-color: var(--blue);
+  }
+
+  .name-field input::placeholder { color: #a09888; }
+
+  .reflection-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 1.5rem;
+  }
+
+  .save-pdf-btn {
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 0.85rem 2.5rem;
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    transition: background 0.2s;
+  }
+
+  .save-pdf-btn:hover { background: #2a3a5e; }
+
+  .save-pdf-btn:disabled {
+    background: #999;
+    cursor: not-allowed;
+  }
+
+  .pdf-note {
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 0.75rem;
+    color: var(--text-light);
+    margin-top: 0.75rem;
+  }
+
+  .fade-in { animation: fadeIn 0.6s ease forwards; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ===== FIELD DISPATCH MODAL ===== */
+  .report-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.75);
+    z-index: 1000;
+    overflow-y: auto;
+    padding: 2rem 1rem;
+  }
+  .report-overlay.active { display: flex; justify-content: center; align-items: flex-start; }
+  .report-modal {
+    background: #f5f3ed;
+    background-image: linear-gradient(to bottom, #f5f3ed, #ebe8de);
+    max-width: 650px;
+    width: 100%;
+    border-radius: 4px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+    padding: 2.5rem 2rem;
+    font-family: 'Source Sans Pro', sans-serif;
+    color: #1a1a1a;
+    position: relative;
+  }
+  .report-modal h2 {
+    font-family: 'Source Sans Pro', sans-serif;
+    text-align: center;
+    font-size: 1.4rem;
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-weight: 700;
+  }
+  .report-modal .report-subtitle {
+    text-align: center;
+    font-style: italic;
+    color: var(--text-light);
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+  }
+  .report-modal .report-classification {
+    text-align: center;
+    font-weight: 700;
+    color: var(--accent);
+    font-size: 0.85rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    padding: 0.3rem;
+    border: 2px solid var(--accent);
+    display: inline-block;
+    width: 100%;
+  }
+  .report-modal .report-intro {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    color: #555;
+    border-left: 3px solid var(--accent);
+    padding-left: 1rem;
+  }
+  .report-modal label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 0.3rem;
+    color: var(--blue);
+  }
+  .report-modal input[type="text"],
+  .report-modal textarea {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+    background: #fff;
+  }
+  .report-modal textarea { min-height: 70px; resize: vertical; }
+  .report-modal .report-field { margin-bottom: 1.2rem; }
+  .report-modal .legal-text {
+    font-size: 0.8rem;
+    font-style: italic;
+    color: #777;
+    line-height: 1.5;
+    margin: 1.5rem 0;
+    padding: 1rem;
+    border: 1px solid #ddd;
+    background: #faf8f3;
+  }
+  .report-submit-btn {
+    display: block;
+    width: 100%;
+    padding: 0.9rem;
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    cursor: pointer;
+    margin-top: 1.5rem;
+  }
+  .report-submit-btn:hover { background: #2a3a5e; }
+
+  /* ===== BROADCAST MODAL ===== */
+  .broadcast-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.92);
+    z-index: 1100;
+    padding: 1rem;
+  }
+  .broadcast-overlay.active {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+  }
+  .broadcast-modal {
+    max-width: 700px;
+    width: 100%;
+    text-align: center;
+  }
+  .broadcast-modal h2 {
+    font-family: 'Libre Baskerville', serif;
+    color: #fff;
+    font-size: 1.4rem;
+    margin-bottom: 0.3rem;
+  }
+  .broadcast-modal .broadcast-dateline {
+    color: var(--gold);
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+  .broadcast-modal p.broadcast-subtitle {
+    color: #bbb;
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 0.95rem;
+    margin-bottom: 1.2rem;
+    font-style: italic;
+    line-height: 1.6;
+  }
+  .broadcast-modal .broadcast-frame {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.3%;
+    margin: 0 auto;
+    background: #000;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .broadcast-modal .broadcast-frame iframe {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+  .broadcast-close-btn {
+    display: inline-block;
+    margin-top: 1.2rem;
+    padding: 0.7rem 2rem;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  .broadcast-close-btn:hover { background: var(--accent-light); }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 700px) {
+    #title-screen h1 { font-size: 2.2rem; }
+    #title-screen .subtitle { font-size: 1rem; }
+    .map-wrapper { height: 320px; }
+    .map-callout { display: none; }
+    .map-legend { display: none; }
+    #game-container { padding: 1.5rem 1rem 3rem; }
+    .scene-title { font-size: 1.4rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== TITLE SCREEN ===== -->
+<div id="title-screen">
+  <h1>Vietnam</h1>
+  <div class="subtitle">1954 – 1975</div>
+  <div class="intro-text">
+    For twenty years, the United States fought an undeclared war in a small country in Southeast Asia. It began with money and advisors. It ended with helicopters on rooftops and a wall of 58,220 names. In between, it tore America apart.
+    <br><br>
+    In this simulation, you are an <em>American war correspondent</em> covering the conflict from the fall of French Indochina to the fall of Saigon. You will witness the key events, make decisions about what stories to tell, and confront the questions the war forced an entire nation to face.
+    <br><br>
+    The people in this story were real. The events happened. The questions are still being asked.
+  </div>
+  <button class="btn-start" onclick="startGame()">Begin Assignment</button>
+</div>
+
+<!-- ===== MAP PANEL ===== -->
+<div id="map-panel">
+  <div class="map-wrapper">
+    <div id="mapbox-container"></div>
+
+    <!-- Map callout -->
+    <div class="map-callout">
+      <div class="callout-location" id="callout-location"></div>
+      <div class="callout-date" id="callout-date"></div>
+    </div>
+
+    <!-- Legend -->
+    <div class="map-legend">
+      <div class="legend-item">
+        <div class="legend-dot green"></div>
+        <span>Current location</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot blue"></div>
+        <span>Reported from</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== GAME CONTENT ===== -->
+<div id="game-container"></div>
+
+<script>
+// ============================================================
+// GAME STATE
+// ============================================================
+const state = {
+  currentScene: null,
+  tonkinChoice: null, // 'official' or 'skeptical' (chosen in scene3)
+  decisions: [],
+  visitedStops: [],
+  sceneHistory: [],
+  forwardHistory: [],
+  reachedEpilogue: false,
+  report: null,
+  _pendingChoice: null
+};
+
+// ============================================================
+// MAP CONFIGURATION
+// ============================================================
+const stopOrder = ['dienbien', 'saigon', 'tonkin', 'danang', 'centralhighlands', 'hue', 'mylai', 'washington', 'cambodia', 'paris'];
+
+const mapLocations = {
+  dienbien:        { lng: 103.0189, lat: 21.3891, label: "Dien Bien Phu" },
+  saigon:          { lng: 106.6297, lat: 10.8231, label: "Saigon" },
+  tonkin:          { lng: 107.5, lat: 20.0, label: "Gulf of Tonkin" },
+  danang:          { lng: 108.2022, lat: 16.0544, label: "Da Nang" },
+  centralhighlands:{ lng: 108.0, lat: 14.5, label: "Central Highlands" },
+  hue:             { lng: 107.5909, lat: 16.4637, label: "Hue" },
+  mylai:           { lng: 108.8833, lat: 15.1833, label: "My Lai" },
+  washington:      { lng: -77.0091, lat: 38.8976, label: "Washington, D.C." },
+  cambodia:        { lng: 104.9282, lat: 11.5564, label: "Phnom Penh" },
+  paris:           { lng: 2.3522, lat: 48.8566, label: "Paris" }
+};
+
+// Ho Chi Minh Trail route (approximate path through Laos & Cambodia)
+const hcmTrailRoute = [
+  [105.85, 21.03],
+  [105.60, 19.80],
+  [105.30, 18.50],
+  [105.80, 17.00],
+  [106.20, 15.50],
+  [106.50, 14.00],
+  [107.00, 12.50],
+  [106.70, 11.00]
+];
+
+const dangerTriggers = {
+  tonkin:    { lng: 107.5, lat: 20.0, type: 'danger-explosion', icon: '\u2716' },
+  mylai:     { lng: 108.8833, lat: 15.1833, type: 'danger-warning', icon: '\u26A0' },
+  cambodia:  { lng: 104.9282, lat: 11.5564, type: 'danger-explosion', icon: '\u2716' }
+};
+
+// Mapbox state
+let mapboxMap = null;
+let mapboxMarkers = {};
+let mapboxDangerMarkers = {};
+let mapboxInitialized = false;
+
+function initMapbox() {
+  if (mapboxInitialized) return;
+  mapboxInitialized = true;
+
+  mapboxgl.accessToken = 'pk.eyJ1IjoiYmFlc2VyIiwiYSI6ImNtbjh5a3hwaTAzMzkyd3ExMXF2ZWlwdWYifQ.lm_CGFr5rvTYNKb3_aG_Xg';
+
+  mapboxMap = new mapboxgl.Map({
+    container: 'mapbox-container',
+    style: 'mapbox://styles/mapbox/dark-v11',
+    center: [106.5, 16.0],
+    zoom: 5,
+    scrollZoom: false,
+    attributionControl: false
+  });
+
+  mapboxMap.addControl(new mapboxgl.AttributionControl({ compact: true }), 'bottom-right');
+  mapboxMap.on('click', () => { mapboxMap.scrollZoom.enable(); });
+
+  requestAnimationFrame(() => { mapboxMap.resize(); });
+
+  mapboxMap.on('style.load', () => {
+    // Ho Chi Minh Trail route source (hidden initially)
+    mapboxMap.addSource('hcm-trail', {
+      type: 'geojson',
+      data: {
+        type: 'Feature',
+        geometry: { type: 'LineString', coordinates: [] }
+      }
+    });
+
+    mapboxMap.addLayer({
+      id: 'hcm-trail-line',
+      type: 'line',
+      source: 'hcm-trail',
+      paint: {
+        'line-color': '#b8960c',
+        'line-width': 3,
+        'line-dasharray': [2, 1.5],
+        'line-opacity': 0.8
+      }
+    });
+
+    // Add location markers
+    Object.entries(mapLocations).forEach(([key, loc]) => {
+      const el = document.createElement('div');
+      el.className = 'mapbox-marker';
+      el.setAttribute('data-city', key);
+
+      const label = document.createElement('div');
+      label.className = 'mapbox-marker-label';
+      label.textContent = loc.label;
+      el.appendChild(label);
+
+      const marker = new mapboxgl.Marker({ element: el, anchor: 'center' })
+        .setLngLat([loc.lng, loc.lat])
+        .addTo(mapboxMap);
+
+      mapboxMarkers[key] = { marker, element: el };
+    });
+
+    // Create danger markers (hidden initially)
+    Object.entries(dangerTriggers).forEach(([key, info]) => {
+      const el = document.createElement('div');
+      el.className = `mapbox-danger-marker ${info.type}`;
+      el.textContent = info.icon;
+
+      const marker = new mapboxgl.Marker({ element: el, anchor: 'center' })
+        .setLngLat([info.lng, info.lat])
+        .addTo(mapboxMap);
+
+      mapboxDangerMarkers[key] = { marker, element: el };
+    });
+
+    if (state.visitedStops.length > 0) {
+      const lastStop = state.visitedStops[state.visitedStops.length - 1];
+      updateMapboxMarkers(lastStop);
+      const loc = mapLocations[lastStop];
+      if (loc) {
+        const zoom = getZoomForStop(lastStop);
+        mapboxMap.flyTo({ center: [loc.lng, loc.lat], zoom: zoom, speed: 1.2, essential: true });
+      }
+    }
+  });
+}
+
+function getZoomForStop(stop) {
+  if (stop === 'washington') return 10;
+  if (stop === 'paris') return 10;
+  return 7;
+}
+
+function updateHCMTrail() {
+  if (!mapboxMap || !mapboxMap.getSource('hcm-trail')) return;
+
+  // Show the trail once the jungle scene (centralhighlands) is visited
+  let coords = [];
+  if (state.visitedStops.includes('centralhighlands')) {
+    coords = hcmTrailRoute;
+  }
+
+  mapboxMap.getSource('hcm-trail').setData({
+    type: 'Feature',
+    geometry: { type: 'LineString', coordinates: coords }
+  });
+}
+
+function updateMapboxMarkers(currentStop) {
+  Object.entries(mapboxMarkers).forEach(([key, { element }]) => {
+    element.classList.remove('visited', 'current');
+    if (state.visitedStops.includes(key) && key !== currentStop) {
+      element.classList.add('visited');
+    }
+    if (key === currentStop) {
+      element.classList.add('current');
+    }
+  });
+
+  Object.entries(dangerTriggers).forEach(([stop]) => {
+    if (state.visitedStops.includes(stop) && mapboxDangerMarkers[stop]) {
+      mapboxDangerMarkers[stop].element.classList.add('visible');
+    }
+  });
+
+  updateHCMTrail();
+}
+
+function updateRouteMap(currentStop, locationText, dateText) {
+  if (!currentStop) return;
+  const idx = stopOrder.indexOf(currentStop);
+  if (idx === -1) return;
+
+  if (!state.visitedStops.includes(currentStop)) {
+    state.visitedStops.push(currentStop);
+  }
+
+  if (locationText) document.getElementById('callout-location').textContent = locationText;
+  if (dateText) document.getElementById('callout-date').textContent = dateText;
+
+  if (!mapboxMap) return;
+
+  updateMapboxMarkers(currentStop);
+
+  const loc = mapLocations[currentStop];
+  if (!loc) return;
+
+  const zoom = getZoomForStop(currentStop);
+
+  if (currentStop === 'washington' || currentStop === 'paris') {
+    mapboxMap.flyTo({
+      center: [loc.lng, loc.lat],
+      zoom: zoom,
+      speed: 0.6,
+      curve: 2,
+      essential: true
+    });
+  } else {
+    mapboxMap.flyTo({
+      center: [loc.lng, loc.lat],
+      zoom: zoom,
+      speed: 0.8,
+      essential: true
+    });
+  }
+}
+
+// ============================================================
+// SCENE DATA
+// ============================================================
+const scenes = {
+
+// ------ SCENE 1: DIEN BIEN PHU ------
+scene1: {
+  location: "Dien Bien Phu, French Indochina",
+  date: "May 7, 1954",
+  stop: "dienbien",
+  title: "The End of an Empire",
+  narrative: `
+    <p>You are a young American journalist, just starting your career as a foreign correspondent. Your editor has sent you to cover the final days of a siege that will change the map of the world.</p>
+
+    <p>France has been fighting to hold its colony in <span class="vocab-term" data-def="The French colonial name for the region comprising modern-day Vietnam, Laos, and Cambodia. France colonized the region in the mid-1800s and ruled it until defeated by Ho Chi Minh's independence movement.">Indochina</span> since 1946. Their enemy is the <span class="vocab-term" data-def="The Viet Minh (League for the Independence of Vietnam) was a nationalist and communist coalition founded by Ho Chi Minh in 1941 to fight for Vietnamese independence, first against Japan, then against France.">Viet Minh</span>, a nationalist and communist guerrilla army led by <strong>Ho Chi Minh</strong>, who has been fighting for Vietnamese independence for decades.</p>
+
+    <figure class="scene-photo">
+      <img src="dien-bien-phu.jpg" alt="French fortifications at Dien Bien Phu under siege">
+      <figcaption>The French garrison at Dien Bien Phu. French commanders chose this remote valley to draw the Viet Minh into a conventional battle. Instead, General Vo Nguyen Giap surrounded the fortress with artillery hauled by hand through the mountains — something the French believed was impossible.</figcaption>
+    </figure>
+
+    <p>The French military has made a catastrophic miscalculation. They built a fortified base in a valley at Dien Bien Phu, hoping to lure the Viet Minh into a set-piece battle where French firepower would be decisive. Instead, Viet Minh General <strong>Vo Nguyen Giap</strong> positioned artillery in the surrounding hills — guns dragged up mountain trails by thousands of soldiers and porters. The French garrison is surrounded, outgunned, and slowly being destroyed.</p>
+
+    <p>The siege has lasted 57 days. The United States has been funding <strong>80% of the French war effort</strong>, but President Eisenhower has refused to send American troops or launch air strikes to save the garrison. Today, the last French positions are overrun.</p>
+
+    <p><strong>11,000 French soldiers surrender.</strong> It is the first time a European colonial army has been decisively defeated by an Asian independence movement in a major pitched battle. French Indochina is finished.</p>
+
+    <div class="historical-note">
+      <strong>Historical context:</strong> The Geneva Accords of 1954 divided Vietnam at the 17th parallel. Ho Chi Minh's communist government would control North Vietnam. A U.S.-backed government under Ngo Dinh Diem would control South Vietnam. Nationwide elections to reunify the country were scheduled for 1956 — but they were never held. The Eisenhower administration and Diem feared that Ho Chi Minh, widely regarded as the father of Vietnamese independence, would win. This decision to cancel the elections planted the seeds of everything that followed.
+    </div>
+
+    <p>As you file your story, an American military attaché pulls you aside. <strong>"This isn't over,"</strong> he says. <strong>"If Vietnam goes communist, then Laos falls, then Cambodia, then Thailand, then Burma. It's dominoes. We can't let that happen."</strong></p>
+
+    <p>You've heard this argument before — the <span class="vocab-term" data-def="The theory, promoted by President Eisenhower, that if one country in Southeast Asia fell to communism, neighboring countries would follow like a row of falling dominoes. This theory became the primary justification for U.S. involvement in Vietnam.">domino theory</span>. The idea that communism spreads from country to country like falling dominoes, and that the United States must stop the first one from falling.</p>
+  `,
+  prompt: "How do you frame your story about the fall of Dien Bien Phu?",
+  choices: [
+    {
+      label: "A",
+      text: "Focus on the communist threat — if the dominoes start falling in Southeast Asia, the free world is in danger. The U.S. must step in where France failed.",
+      consequence: `<p>Your story runs on the front page: <em>"FRENCH FORTRESS FALLS — Communist Victory Raises Stakes for Free World."</em> Your editor is pleased. Washington is paying attention to Southeast Asia, and your reporting frames the story the way American policymakers see it — as a Cold War battleground, not a colonial war.</p>
+      <p>But a French officer you interviewed before the surrender said something you can't stop thinking about: <em>"We had the weapons. We had the planes. We had everything except the one thing that mattered — the Vietnamese people did not want us here."</em></p>`,
+      next: "scene2"
+    },
+    {
+      label: "B",
+      text: "Focus on the lesson of Dien Bien Phu — a Western army with superior firepower was defeated by a determined independence movement. Colonial wars cannot be won.",
+      consequence: `<p>Your story runs inside the paper, not on the front page: <em>"Dien Bien Phu: The Limits of Western Firepower Against a People's War."</em> Your editor tells you it's good writing but doesn't match the national mood. Americans are worried about communism, not colonialism.</p>
+      <p>But the French commanders you spoke with were blunt. One colonel told you: <em>"Tell your country not to make our mistake. You cannot win a war against people fighting for their own land. Not with bombs. Not with money. Not with anything."</em></p>`,
+      next: "scene2"
+    }
+  ]
+},
+
+// ------ SCENE 2: THE BURNING MONK ------
+scene2: {
+  location: "Saigon, South Vietnam",
+  date: "June 11, 1963",
+  stop: "saigon",
+  title: "The Burning Monk",
+  narrative: `
+    <p>Nine years have passed. You are now an experienced correspondent, and you have returned to Vietnam.</p>
+
+    <p>The United States has poured money and military advisors into South Vietnam to prop up the government of President <strong>Ngo Dinh Diem</strong>. By 1963, there are over <strong>16,000 American military advisors</strong> in the country, training the <span class="vocab-term" data-def="The Army of the Republic of Vietnam (ARVN) — the military forces of South Vietnam, trained and equipped by the United States. ARVN forces varied widely in quality and were plagued by corruption and poor leadership at senior levels.">ARVN</span> (Army of the Republic of Vietnam) to fight the communist <span class="vocab-term" data-def="The National Liberation Front (NLF), called the Viet Cong (Vietnamese Communists) by the Americans and South Vietnamese government. A guerrilla force in South Vietnam that fought to overthrow the Saigon government and reunify Vietnam under communist rule. The Viet Cong were supported by North Vietnam.">Viet Cong</span> insurgency in the South.</p>
+
+    <p>But Diem's government is deeply corrupt and brutally repressive. Diem is a Catholic autocrat ruling a predominantly Buddhist country. His brother, Ngo Dinh Nhu, runs a secret police force. The <span class="vocab-term" data-def="A counterinsurgency program that forcibly relocated South Vietnamese peasants from their ancestral villages into fortified compounds. The program was meant to separate the rural population from the Viet Cong but was deeply unpopular and often drove villagers toward the insurgency instead.">Strategic Hamlet Program</span> has forcibly relocated hundreds of thousands of peasants from their villages. The countryside is slipping away from government control.</p>
+
+    <p>On the morning of June 11, 1963, you receive a tip: something is going to happen at a major intersection in downtown Saigon. You grab your camera and go.</p>
+
+    <p>A procession of Buddhist monks walks to the intersection of Phan Dinh Phung Boulevard and Le Van Duyet Street. An elderly monk, <strong>Thich Quang Duc</strong>, 66 years old, sits down in the lotus position on the pavement. Other monks pour gasoline over his body. He strikes a match.</p>
+
+    <figure class="scene-photo">
+      <img src="burning-monk.jpg" alt="Thich Quang Duc's self-immolation in Saigon, June 11, 1963">
+      <figcaption>Thich Quang Duc's self-immolation at a Saigon intersection, June 11, 1963. The photograph, taken by AP journalist Malcolm Browne, shocked the world and drew international attention to the crisis in South Vietnam. Thich Quang Duc did not move or cry out as he burned.</figcaption>
+    </figure>
+
+    <p><strong>He does not move. He does not cry out.</strong> He burns in silence. The flames consume him. You force yourself to keep your eyes open. You force yourself to write. Around you, monks are chanting. Bystanders are weeping. Some are prostrating themselves on the ground.</p>
+
+    <p>Diem's sister-in-law, <strong>Madame Nhu</strong>, responds to the immolation by calling it a <em>"barbecue"</em> and offers to supply mustard. The comment is broadcast around the world.</p>
+
+    <div class="historical-note">
+      <strong>Historical context:</strong> The photograph of Thich Quang Duc's self-immolation, taken by AP correspondent Malcolm Browne, became one of the most influential images of the 20th century. President Kennedy reportedly said of the photo: "No news picture in history has generated so much emotion around the world as that one." The Buddhist crisis convinced the Kennedy administration that Diem had to go. On November 1, 1963, South Vietnamese generals — with tacit approval from the CIA — overthrew Diem in a coup. Diem and his brother Nhu were captured and murdered. Three weeks later, President Kennedy was assassinated in Dallas. Lyndon Johnson inherited Vietnam.
+    </div>
+
+    <p>In the months that follow, the political situation in Saigon collapses. After Diem's overthrow, South Vietnam cycles through one military coup after another — seven changes of government in 1964 alone. The Viet Cong are growing stronger. American advisors are increasingly being drawn into combat. The war is escalating, and no one in Washington seems to know how to stop it.</p>
+  `,
+  prompt: "Your editor wants you to go deeper. Where do you focus your reporting?",
+  choices: [
+    {
+      label: "A",
+      text: "Embed with the American military advisors in the field — the real story is what's happening in the countryside, not the political chaos in Saigon.",
+      consequence: `<p>You spend weeks in the Mekong Delta with American advisors and their South Vietnamese counterparts. What you see troubles you deeply. The ARVN soldiers are often poorly led. The Viet Cong control vast areas of the countryside at night. The Strategic Hamlet Program is a disaster — villagers resent being uprooted from their homes. American advisors are frustrated, brave, and increasingly in danger.</p>
+      <p>One advisor, a young Army captain, tells you: <em>"We're training them to fight, but they don't want to fight for this government. Would you?"</em> You file your stories. They paint a picture very different from the official optimism coming out of Washington.</p>`,
+      next: "scene3"
+    },
+    {
+      label: "B",
+      text: "Stay in Saigon and investigate the political chaos — the coups, the CIA's role, the collapse of stable governance. Without a functioning government, no military strategy can work.",
+      consequence: `<p>You dig into the web of coups, CIA contacts, and political dysfunction. What emerges is a portrait of a country being held together by American money and military force, with no legitimate government that the Vietnamese people trust. Each new military junta is weaker than the last.</p>
+      <p>A senior American diplomat, speaking off the record, tells you: <em>"We're propping up a house of cards. Every time we push one card into place, two more fall. But no one in Washington wants to hear that."</em> When your stories run, the Pentagon accuses you of undermining the war effort. Your editor stands behind you.</p>`,
+      next: "scene3"
+    }
+  ]
+},
+
+// ------ SCENE 3: GULF OF TONKIN ------
+scene3: {
+  location: "Gulf of Tonkin, off the coast of North Vietnam",
+  date: "August 2–4, 1964",
+  stop: "tonkin",
+  title: "The Gulf of Tonkin",
+  narrative: `
+    <p>President Lyndon Johnson has been in office for nine months. Vietnam is deteriorating. The Viet Cong control more territory than ever. South Vietnam's government is in chaos. Johnson's advisors are pushing for escalation, but the President needs a justification — something that will give him the authority to use military force without a formal declaration of war.</p>
+
+    <p>On August 2, 1964, the USS <em>Maddox</em>, a destroyer conducting <span class="vocab-term" data-def="DESOTO patrols were U.S. Navy intelligence-gathering missions that sailed close to the North Vietnamese coast to intercept radio communications and map coastal defenses. These patrols were conducted simultaneously with South Vietnamese commando raids against North Vietnam — a connection the U.S. government did not publicly acknowledge.">DESOTO patrol</span> signals intelligence operations in the Gulf of Tonkin, is attacked by three North Vietnamese torpedo boats. The <em>Maddox</em> returns fire, supported by aircraft from the carrier USS <em>Ticonderoga</em>. One torpedo boat is badly damaged. No Americans are hurt. This attack is real and confirmed.</p>
+
+    <figure class="scene-photo">
+      <img src="uss-maddox.jpg" alt="USS Maddox in the Gulf of Tonkin">
+      <figcaption>The USS Maddox (DD-731). On August 2, 1964, the destroyer was attacked by North Vietnamese torpedo boats while conducting intelligence patrols in the Gulf of Tonkin. A reported second attack on August 4 became the basis for the Gulf of Tonkin Resolution.</figcaption>
+    </figure>
+
+    <p>Two days later, on the night of August 4, the <em>Maddox</em> and the destroyer USS <em>Turner Joy</em> report a second attack. But the reports are confused and contradictory. It is a dark, stormy night. Sonar operators are inexperienced. Radar contacts appear and disappear. The crew is on edge after the real attack two days earlier.</p>
+
+    <p>Captain John Herrick, commanding the patrol, sends an urgent cable to Washington: <strong>"Review of action makes many reported contacts and torpedoes fired appear doubtful. Freak weather effects on radar and overeager sonarmen may have accounted for many reports. No actual visual sightings by Maddox."</strong></p>
+
+    <p>But in Washington, Secretary of Defense <strong>Robert McNamara</strong> tells Congress the attack was unprovoked and definite. President Johnson goes on national television and announces retaliatory air strikes against North Vietnam.</p>
+
+    <div class="historical-note">
+      <strong>Historical context:</strong> On August 7, 1964, Congress passed the <strong>Gulf of Tonkin Resolution</strong>, authorizing the President to use military force in Southeast Asia without a formal declaration of war. It passed 416–0 in the House and 88–2 in the Senate. Only Senators Wayne Morse of Oregon and Ernest Gruening of Alaska voted no. Morse declared: "I believe that history will record we have made a great mistake." Declassified documents later confirmed that the second attack almost certainly never happened. Secretary McNamara later admitted: "We were wrong, terribly wrong."
+    </div>
+
+    <p>You have sources in the Navy. You have seen Captain Herrick's cable expressing doubt. You know the evidence for the second attack is shaky at best. But the President has already ordered air strikes, and Congress has just given him the authority to wage war.</p>
+  `,
+  prompt: "How do you report this story?",
+  choices: [
+    {
+      label: "A",
+      text: "Report the story as the administration presents it — American ships were attacked, Congress has authorized a response, and the nation stands united.",
+      consequence: `<p>Your story runs with the national consensus: <em>"CONGRESS BACKS PRESIDENT — Gulf of Tonkin Resolution Passes with Near-Unanimous Support."</em> Your reporting is accurate about the political facts. But you don't mention the doubts, the contradictions in the reports, or Captain Herrick's cable.</p>
+      <p>Across the country, every major newspaper runs the same story the same way. Only a handful of journalists ask questions. Senator Morse's warning is buried deep in the coverage.</p>
+      <p>The Tonkin Resolution will be used as the legal authority for everything that follows — the bombing, the troop deployments, the entire war. Years later, you will think about this moment and what might have been different if the press had pushed harder.</p>`,
+      next: "scene4",
+      effect: () => { state.tonkinChoice = 'official'; }
+    },
+    {
+      label: "B",
+      text: "Report the discrepancies — the evidence for the second attack is murky, and this resolution gives the President effectively unlimited war powers. The public deserves the full picture.",
+      consequence: `<p>Your story runs, but it's not the lead: <em>"Questions Linger Over Gulf of Tonkin Evidence as Congress Grants War Powers."</em> You include the conflicting reports, the sonar doubts, and the speed with which the resolution was pushed through. Your editor runs it, but nervously.</p>
+      <p>The Pentagon calls your editor to complain. A State Department official accuses you of <em>"giving aid and comfort to the enemy."</em> Other journalists privately tell you they have the same doubts but their editors won't run the story.</p>
+      <p>It will take years — and the Pentagon Papers — before the full truth about the Gulf of Tonkin is confirmed. But you asked the questions when it mattered. Not enough people listened.</p>`,
+      next: "scene4",
+      effect: () => { state.tonkinChoice = 'skeptical'; }
+    }
+  ]
+},
+
+// ------ SCENE 4: ROLLING THUNDER ------
+scene4: {
+  location: "Da Nang, South Vietnam",
+  date: "March 1965",
+  stop: "danang",
+  get title() { return "Rolling Thunder"; },
+  get narrative() {
+    return state.tonkinChoice === 'skeptical' ? this._skepticalNarrative : this._officialNarrative;
+  },
+  _officialNarrative: `
+    <p>The Gulf of Tonkin Resolution has opened the floodgates. On March 2, 1965, the United States launches <strong>Operation Rolling Thunder</strong> — a sustained bombing campaign against North Vietnam. What is planned as an eight-week campaign will continue for over three years.</p>
+
+    <p>Six days later, on March 8, the first American combat troops — 3,500 Marines — wade ashore at Da Nang. You are on the beach as they arrive. Vietnamese girls place garlands of flowers around the Marines' necks. The scene feels surreal — like a parade, not a war.</p>
+
+    <figure class="scene-photo">
+      <img src="rolling-thunder.jpg" alt="U.S. aircraft during Operation Rolling Thunder bombing campaign">
+      <figcaption>U.S. aircraft over North Vietnam during Operation Rolling Thunder. Between 1965 and 1968, the United States dropped more bombs on Vietnam than were dropped by all sides during the entirety of World War II — over 7 million tons.</figcaption>
+    </figure>
+
+    <p>But the war in the air is anything but festive. Rolling Thunder rains destruction on North Vietnam — bridges, railways, fuel depots, power plants. By 1968, the United States will have dropped more bombs on Vietnam than were dropped by <strong>all sides in all of World War II</strong>. American pilots fly through some of the most heavily defended airspace in the world — Soviet-supplied surface-to-air missiles and anti-aircraft guns claim hundreds of aircraft.</p>
+
+    <p>On the ground, the buildup is staggering. By the end of 1965, there are <strong>184,000 American troops</strong> in Vietnam. By 1968, there will be over <strong>536,000</strong>. The strategy is <span class="vocab-term" data-def="A military strategy focused on killing enemy soldiers faster than they can be replaced, rather than capturing and holding territory. In Vietnam, this led to 'body count' as the primary measure of success — a metric that was widely manipulated and inflated.">attrition</span> — kill more of the enemy than they can replace. The measure of success is the <strong>body count</strong>.</p>
+
+    <p>And then there is <span class="vocab-term" data-def="A jellied gasoline incendiary weapon that burns at approximately 1,500–2,200°F. When dropped from aircraft, it spreads flaming gel over a wide area. Napalm was used extensively in Vietnam against suspected enemy positions, often in areas where civilians were present. Its use became one of the most controversial aspects of the war.">napalm</span>. Canisters of jellied gasoline, dropped from aircraft, that spread liquid fire across everything they touch — jungle, villages, people. The smell is something you will never forget. The burns are something you will never unsee.</p>
+
+    <div class="historical-note">
+      <strong>Historical context:</strong> Operation Rolling Thunder dropped approximately 643,000 tons of bombs on North Vietnam between 1965 and 1968. The total tonnage dropped on all of Vietnam, Laos, and Cambodia during the entire war exceeded 7 million tons — more than three times the total dropped by all sides in World War II. Despite this, North Vietnam continued to send troops and supplies south via the Ho Chi Minh Trail. The bombing failed to break North Vietnam's will or significantly reduce its capacity to wage war.
+    </div>
+
+    <p>In the villages of South Vietnam, the line between enemy and civilian barely exists. A farmer by day may be Viet Cong by night. An American officer, surveying the rubble of a village destroyed in a firefight, says a phrase that will come to define the war: <strong>"We had to destroy the village in order to save it."</strong></p>
+  `,
+  _skepticalNarrative: `
+    <p>The questions you raised about the Gulf of Tonkin have been swept aside by events. On March 2, 1965, the United States launches <strong>Operation Rolling Thunder</strong> — a sustained bombing campaign against North Vietnam. What is planned as an eight-week campaign will continue for over three years. The war you feared is now real.</p>
+
+    <p>Six days later, on March 8, the first American combat troops — 3,500 Marines — wade ashore at Da Nang. You are on the beach as they arrive. Vietnamese girls place garlands of flowers around the Marines' necks. You watch the young faces of the Marines — most of them teenagers — and think about the Tonkin Resolution that made this possible. Passed on disputed evidence. Authorizing everything.</p>
+
+    <figure class="scene-photo">
+      <img src="rolling-thunder.jpg" alt="U.S. aircraft during Operation Rolling Thunder bombing campaign">
+      <figcaption>U.S. aircraft over North Vietnam during Operation Rolling Thunder. Between 1965 and 1968, the United States dropped more bombs on Vietnam than were dropped by all sides during the entirety of World War II — over 7 million tons.</figcaption>
+    </figure>
+
+    <p>The war in the air is relentless. Rolling Thunder rains destruction on North Vietnam — bridges, railways, fuel depots, power plants. By 1968, the United States will have dropped more bombs on Vietnam than were dropped by <strong>all sides in all of World War II</strong>. American pilots fly through some of the most heavily defended airspace in the world — Soviet-supplied surface-to-air missiles and anti-aircraft guns claim hundreds of aircraft.</p>
+
+    <p>On the ground, the buildup is staggering. By the end of 1965, there are <strong>184,000 American troops</strong> in Vietnam. By 1968, there will be over <strong>536,000</strong>. The strategy is <span class="vocab-term" data-def="A military strategy focused on killing enemy soldiers faster than they can be replaced, rather than capturing and holding territory. In Vietnam, this led to 'body count' as the primary measure of success — a metric that was widely manipulated and inflated.">attrition</span> — kill more of the enemy than they can replace. The measure of success is the <strong>body count</strong>.</p>
+
+    <p>And then there is <span class="vocab-term" data-def="A jellied gasoline incendiary weapon that burns at approximately 1,500–2,200°F. When dropped from aircraft, it spreads flaming gel over a wide area. Napalm was used extensively in Vietnam against suspected enemy positions, often in areas where civilians were present. Its use became one of the most controversial aspects of the war.">napalm</span>. Canisters of jellied gasoline, dropped from aircraft, that spread liquid fire across everything they touch — jungle, villages, people. The smell is something you will never forget. The burns are something you will never unsee.</p>
+
+    <div class="historical-note">
+      <strong>Historical context:</strong> Operation Rolling Thunder dropped approximately 643,000 tons of bombs on North Vietnam between 1965 and 1968. The total tonnage dropped on all of Vietnam, Laos, and Cambodia during the entire war exceeded 7 million tons — more than three times the total dropped by all sides in World War II. Despite this, North Vietnam continued to send troops and supplies south via the Ho Chi Minh Trail. The bombing failed to break North Vietnam's will or significantly reduce its capacity to wage war.
+    </div>
+
+    <p>In the villages of South Vietnam, the line between enemy and civilian barely exists. A farmer by day may be Viet Cong by night. An American officer, surveying the rubble of a village destroyed in a firefight, says a phrase that will come to define the war: <strong>"We had to destroy the village in order to save it."</strong></p>
+
+    <p>You file your stories. You quote the officer. You describe the napalm. Your colleagues at other papers describe the same things. But back in Washington, the official line remains: we are winning.</p>
+  `,
+  prompt: "Your editor gives you a choice of assignments. Where do you go?",
+  choices: [
+    {
+      label: "A",
+      text: "Embed with bomber crews at an air base — cover the air war, the pilots, and the strategy behind Rolling Thunder.",
+      consequence: `<p>You spend two weeks at an air base, watching F-105 Thunderchiefs and B-52 Stratofortresses take off loaded with bombs and return — when they return — riddled with flak damage. The pilots are professionals. They follow orders. They drop their ordnance on assigned coordinates. Many of them have no idea what they're hitting.</p>
+      <p>One pilot tells you: <em>"I fly north, I drop my bombs, I fly south. I don't think about what's on the ground. If I did, I couldn't do this job."</em> Another, quieter, says: <em>"We've been bombing the same bridges for eight months. They rebuild them every night. What does that tell you?"</em></p>
+      <p>The air war is a technological marvel producing no strategic result. You begin to understand that this war will not be won from the air.</p>`,
+      next: "scene5"
+    },
+    {
+      label: "B",
+      text: "Go to the villages — cover the impact of the bombing and the ground war on Vietnamese civilians. That's the story no one is telling.",
+      consequence: `<p>You spend weeks in the countryside of South Vietnam's central provinces. What you find is devastating. Villages destroyed by air strikes. Families burned by napalm. Children orphaned. Peasants who don't understand why their homes are being destroyed by the Americans who claim to be protecting them.</p>
+      <p>You meet a village elder whose home was destroyed in an air strike targeting a suspected Viet Cong position. <em>"The Americans come and say they will protect us,"</em> he says. <em>"Then they burn our village. Then they say they are sorry. Then they burn the next village."</em></p>
+      <p>You write about the <span class="vocab-term" data-def="Agent Orange was a powerful chemical herbicide and defoliant used by the U.S. military from 1961 to 1971 to destroy forest cover and crops that might feed the Viet Cong. The chemical contained dioxin, one of the most toxic substances known. Exposure caused cancer, birth defects, and other health problems in both Vietnamese civilians and American veterans for generations.">Agent Orange</span> sprayed over forests and farmland — a chemical defoliant that strips the trees bare and poisons the soil. Years from now, the health effects will still be devastating.</p>`,
+      next: "scene5"
+    }
+  ]
+},
+
+// ------ SCENE 5: THE JUNGLE ------
+scene5: {
+  location: "Central Highlands, South Vietnam",
+  date: "1966–1967",
+  stop: "centralhighlands",
+  title: "Into the Jungle",
+  narrative: `
+    <p>You embed with an infantry company of the U.S. Army's 25th Infantry Division for a <span class="vocab-term" data-def="Search and destroy was the primary ground strategy in Vietnam. Infantry units would patrol (or be helicoptered) into areas of suspected enemy activity, make contact with the enemy, call in air and artillery support, and then withdraw. The goal was to kill enemy combatants, not to hold territory. Critics argued this approach was counterproductive — it devastated the countryside without achieving lasting control.">search and destroy</span> mission in the Central Highlands. These are the soldiers who are fighting the war that Americans see on the nightly news. Most of them are 18 or 19 years old. The average age of the American combat soldier in Vietnam is <strong>19</strong> — seven years younger than in World War II.</p>
+
+    <p>The jungle is suffocating. Triple-canopy rainforest blocks the sun. The heat is over 100 degrees. Humidity makes every step feel like walking through water. Soldiers carry 60 to 80 pounds of gear. Insects, leeches, and snakes are constant companions. Diseases — malaria, dysentery, jungle rot — are as dangerous as the enemy.</p>
+
+    <figure class="scene-photo">
+      <img src="jungle-patrol.jpg" alt="American soldiers on patrol in the Vietnamese jungle">
+      <figcaption>American soldiers on patrol in the dense jungle of the Central Highlands. Most combat soldiers were 18 or 19 years old. Many had been drafted. A 12-month tour of duty — 365 days — was a countdown every soldier kept in their head.</figcaption>
+    </figure>
+
+    <p>But the greatest terror is the <span class="vocab-term" data-def="The Viet Cong used an extensive array of booby traps to injure and demoralize American forces. These included punji stake pits (sharpened bamboo stakes in concealed holes), tripwire grenades, pressure-activated mines, and rigged artillery shells. Booby traps accounted for approximately 11% of American deaths and 17% of wounds in Vietnam.">booby traps</span>. They are everywhere. <strong>Punji stakes</strong> — sharpened bamboo spikes hidden in covered pits, sometimes smeared with poison or feces to cause infection. Tripwire grenades. Pressure-activated mines made from unexploded American ordnance. Rigged artillery shells buried under trails.</p>
+
+    <p>You watch a soldier step off a trail and disappear into a punji pit. His screaming is the worst sound you have ever heard. Another soldier trips a wire and a grenade swings down from a tree on a vine. Two men are hit. The company hasn't seen a single enemy soldier. Eleven percent of American deaths in Vietnam are caused by booby traps.</p>
+
+    <figure class="scene-photo">
+      <img src="tunnel-rats.jpg" alt="A 'tunnel rat' soldier preparing to enter a Viet Cong tunnel">
+      <figcaption>A U.S. soldier — known as a "tunnel rat" — prepares to enter a Viet Cong tunnel complex. Armed with only a pistol, flashlight, and knife, tunnel rats crawled into pitch-dark underground networks that could stretch for miles. The Cu Chi tunnel system alone contained over 200 miles of tunnels.</figcaption>
+    </figure>
+
+    <p>And then there are the tunnels. The <span class="vocab-term" data-def="The Cu Chi tunnels were an immense network of underground passages near Saigon used by the Viet Cong as hiding spots, communication routes, supply depots, hospitals, and living quarters. The tunnel system included booby traps, ventilation shafts disguised as anthills, and underwater entrances. U.S. forces sent small soldiers called 'tunnel rats' into the tunnels armed with pistols and flashlights.">Cu Chi tunnels</span> near Saigon are a vast underground network — over 200 miles of passages, some reaching three levels deep. The Viet Cong live, fight, store weapons, and treat their wounded underground. American forces send <strong>"tunnel rats"</strong> down into the darkness — small-statured soldiers armed with nothing but a .45 pistol, a flashlight, and a knife. They crawl through passages so narrow they can't turn around, never knowing if the next bend holds an enemy soldier, a booby trap, a scorpion, or a dead end.</p>
+
+    <p>Above ground, the war's futility becomes clear. American forces win almost every major engagement. They kill far more of the enemy than they lose. But it doesn't matter, because the North Vietnamese keep coming — down the <span class="vocab-term" data-def="A network of roads, trails, and paths running from North Vietnam through Laos and Cambodia into South Vietnam. Totaling roughly 12,000 miles, the Trail was the main supply route for North Vietnamese troops and equipment heading south. Despite massive American bombing, the Trail was never cut off — damage was repaired within hours using tens of thousands of laborers.">Ho Chi Minh Trail</span>, a 12,000-mile network of supply routes running through the jungles of Laos and Cambodia. The United States bombs the Trail relentlessly, but it cannot be destroyed. Tens of thousands of porters repair the damage within hours.</p>
+
+    <div class="historical-note">
+      <strong>Historical context:</strong> By 1967, the war had become a grinding stalemate. The U.S. military was winning tactically — killing far more enemy soldiers in every engagement — but the body count strategy was not producing victory. North Vietnam was willing to absorb enormous casualties. Ho Chi Minh said: "You will kill ten of us, and we will kill one of you, but it is you who will tire first." Meanwhile, American officers in Saigon reported steady progress. General William Westmoreland told Congress in November 1967 that "we have reached an important point when the end begins to come into view." Two months later, the Tet Offensive would prove him catastrophically wrong.
+    </div>
+  `,
+  prompt: "Your editor wants a story about the soldiers' experience. What angle do you take?",
+  choices: [
+    {
+      label: "A",
+      text: "Go underground with the tunnel rats — the most dangerous job in Vietnam. Their story is the war in miniature: crawling blind into the unknown.",
+      consequence: `<p>You follow a tunnel rat team into a tunnel complex near Cu Chi. The entrance is a hole barely large enough to fit through. You descend into absolute darkness. The air is thick, hot, and foul. You can hear your own heartbeat. The soldier ahead of you moves inches at a time, probing for tripwires with his knife.</p>
+      <p>Fifteen minutes in, you reach a chamber. The tunnel rat's flashlight reveals a Viet Cong underground hospital — cots, surgical tools, medicine bottles with Chinese labels. It's been recently abandoned. Booby traps guard the exits. One wrong move and the tunnel becomes a tomb.</p>
+      <p>When you emerge, blinking in the sunlight, the tunnel rat lights a cigarette with shaking hands. He's 20 years old, from Cleveland. <em>"Every time I go down there,"</em> he says, <em>"I think about how I'm going to explain this to my mom."</em></p>`,
+      next: "scene6"
+    },
+    {
+      label: "B",
+      text: "Follow a patrol trying to interdict the Ho Chi Minh Trail — the supply line that makes this an unwinnable war. If the Trail can't be cut, nothing else matters.",
+      consequence: `<p>You join a long-range reconnaissance patrol near the Laotian border. The mission: locate and observe sections of the Ho Chi Minh Trail for targeting by air strikes. For three days you move through jungle so thick you can see no more than ten feet in any direction.</p>
+      <p>On the third night, you reach a ridge overlooking a section of the Trail. In the moonlight, you watch an endless stream of figures moving south — soldiers, bicycles loaded with ammunition, porters carrying supplies on their backs. It looks like an army of ants. You count for an hour and lose track.</p>
+      <p>The patrol leader calls in coordinates. Hours later, B-52s carpet-bomb the area. The next morning, you look through binoculars. The craters are already being filled in. New trails are being cut around the bomb damage. The stream of supplies has resumed.</p>
+      <p><em>"We can bomb it every day for a hundred years,"</em> the patrol leader says. <em>"They'll just keep coming."</em></p>`,
+      next: "scene6"
+    }
+  ]
+},
+
+// ------ SCENE 6: TET OFFENSIVE ------
+scene6: {
+  location: "Saigon / Hue, South Vietnam",
+  date: "January 30, 1968",
+  stop: "hue",
+  title: "Tet",
+  narrative: `
+    <p>It is the Vietnamese lunar new year — <span class="vocab-term" data-def="Tet Nguyen Dan (commonly called 'Tet') is the Vietnamese New Year, the most important holiday in Vietnamese culture. In previous years, both sides had observed informal ceasefires during Tet. The 1968 offensive used this expectation against the Americans and South Vietnamese.">Tet</span>. In previous years, both sides have observed an informal ceasefire. American soldiers are celebrating. Many ARVN troops are on leave, visiting their families.</p>
+
+    <p>At 3:00 a.m. on January 30, 1968, the ceasefire shatters. <strong>80,000 North Vietnamese and Viet Cong fighters</strong> launch simultaneous, coordinated attacks across all of South Vietnam. They strike 36 of 44 provincial capitals, 5 of 6 major cities, 64 district capitals, and dozens of military installations. It is the largest military operation of the entire war.</p>
+
+    <p>In Saigon, 19 Viet Cong sappers blast a hole in the wall surrounding the <strong>U.S. Embassy compound</strong> and storm inside. They hold part of the grounds for six hours before being killed. The image of enemy fighters inside the American Embassy — the symbol of U.S. power in Vietnam — is broadcast to every television in America.</p>
+
+    <figure class="scene-photo">
+      <img src="tet-offensive.jpg" alt="U.S. soldiers fighting during the Tet Offensive in Hue">
+      <figcaption>American Marines fight house-to-house during the Battle of Hue, February 1968. The battle to retake the ancient imperial city lasted 26 days and left much of Hue in ruins. It was some of the most brutal urban combat since World War II.</figcaption>
+    </figure>
+
+    <p>The worst fighting is in <strong>Hue</strong>, the ancient imperial capital. North Vietnamese forces seize most of the city. The battle to retake Hue lasts <strong>26 days</strong> of savage, house-to-house combat. The ancient Citadel is reduced to rubble. When it's over, mass graves are discovered — the NVA had executed between 2,800 and 6,000 civilians during their occupation.</p>
+
+    <p>On February 1, on a Saigon street, Associated Press photographer <strong>Eddie Adams</strong> captures the most shocking image of the war: South Vietnamese General Nguyen Ngoc Loan raises his pistol and executes a Viet Cong prisoner with a single shot to the head. The photograph, broadcast worldwide, becomes a symbol of the war's brutality.</p>
+
+    <figure class="scene-photo">
+      <img src="saigon-execution.jpg" alt="General Loan executes a Viet Cong prisoner on a Saigon street">
+      <figcaption>Eddie Adams' Pulitzer Prize-winning photograph. The image shocked the American public, though the full context — the prisoner had just been captured after killing a South Vietnamese officer and his family — was rarely reported. Adams later said: "The general killed the Viet Cong; I killed the general with my camera."</figcaption>
+    </figure>
+
+    <div class="historical-note">
+      <strong>Historical context:</strong> Militarily, the Tet Offensive was a devastating defeat for the Viet Cong. They were virtually destroyed as a fighting force and failed to hold any city they attacked. But politically, Tet was a catastrophic defeat for the United States. For years, General Westmoreland and the Johnson administration had been telling Americans the war was being won — that there was "light at the end of the tunnel." Tet obliterated that narrative. If the enemy could simultaneously attack every major city, how could the U.S. be winning? The <span class="vocab-term" data-def="The credibility gap was the growing public perception that the U.S. government was lying about the war in Vietnam. The gap between official optimism ('we are winning') and the reality on the ground (Tet Offensive, rising casualties, no end in sight) eroded public trust in the government and fueled the anti-war movement.">credibility gap</span> — the distance between what the government said and what was true — had become an abyss.
+    </div>
+
+    <p>On February 27, 1968, CBS News anchor <strong>Walter Cronkite</strong> — the most trusted man in America — delivers an editorial on the evening news. He has just returned from Vietnam. He looks into the camera and says:</p>
+
+    <p style="padding: 1rem 1.5rem; background: #1a2a4a; color: #eceae4; font-style: italic; border-radius: 4px; margin: 1rem 0;"><strong>"To say that we are closer to victory today is to believe, in the face of the evidence, the optimists who have been wrong in the past. To say that we are mired in stalemate seems the only realistic, yet unsatisfactory, conclusion... It is increasingly clear to this reporter that the only rational way out then will be to negotiate, not as victors, but as an honorable people who lived up to their pledge to defend democracy, and did the best they could."</strong></p>
+
+    <p>President Johnson reportedly turns off the television and says: <strong>"If I've lost Cronkite, I've lost Middle America."</strong></p>
+  `,
+  prompt: null,
+  choices: [],
+  auto_next: "scene7"
+},
+
+// ------ SCENE 7: MY LAI ------
+scene7: {
+  location: "My Lai (Son My), Quang Ngai Province",
+  date: "March 16, 1968",
+  stop: "mylai",
+  title: "My Lai",
+  narrative: `
+    <p>Seven weeks after the Tet Offensive, <strong>Charlie Company</strong>, 1st Battalion, 20th Infantry Regiment, is ordered to clear the hamlet of My Lai in Quang Ngai Province. Intelligence reports say a Viet Cong battalion is hiding there.</p>
+
+    <p>The soldiers of Charlie Company are angry and frightened. They have been in Vietnam for three months. They have taken steady casualties from booby traps and sniper fire. They have lost 28 men — killed and wounded — without ever seeing the enemy in a direct engagement. They have been told the village is hostile.</p>
+
+    <p>When they enter My Lai at dawn, they find no Viet Cong fighters. No weapons caches. No military-age men. Only women, children, and elderly villagers eating breakfast.</p>
+
+    <p><strong>What happens over the next four hours is one of the worst war crimes in American military history.</strong></p>
+
+    <p>Under the command of <strong>Lieutenant William Calley</strong>, soldiers begin systematically killing unarmed civilians. They shoot villagers in their homes, in their fields, in irrigation ditches. Women are sexually assaulted. Livestock is slaughtered. Homes are burned. Between <strong>347 and 504 unarmed civilians</strong> are murdered. Many of the victims are women, children, and elderly men.</p>
+
+    <figure class="scene-photo">
+      <img src="my-lai-memorial.jpg" alt="The My Lai massacre memorial in Son My, Vietnam">
+      <figcaption>The My Lai memorial in Son My, Vietnam. The names and ages of the victims are inscribed in the stone. The youngest were infants.</figcaption>
+    </figure>
+
+    <p>In the middle of the killing, a helicopter pilot — Chief Warrant Officer <strong>Hugh Thompson</strong> — sees what is happening from the air. He lands his helicopter between American soldiers and a group of cowering civilians. He orders his door gunner, Lawrence Colburn, to fire on the American troops if they attempt to harm the villagers. Thompson evacuates surviving civilians, including children he pulls from a ditch filled with bodies.</p>
+
+    <div class="historical-note">
+      <strong>Historical context:</strong> The Army covered up the massacre for over a year. Officers filed false reports claiming 128 "enemy combatants" had been killed in a fierce firefight. The truth emerged in November 1969 when journalist <strong>Seymour Hersh</strong> published his investigation. Photographer <strong>Ron Haeberle</strong>, who had been present during the massacre, released his photographs to the Cleveland Plain Dealer. The images of dead women and children shocked America. Of the 26 soldiers initially charged, only Lt. Calley was convicted. He was sentenced to life in prison, but President Nixon intervened and Calley served just 3½ years of house arrest. Hugh Thompson, who risked his life to stop the massacre, was initially vilified as a traitor. It took 30 years before the Army officially recognized his heroism.
+    </div>
+
+    <p>You learn about the massacre months later, when Hersh's story breaks. You read the testimony. You see the photographs. You interview veterans of Charlie Company. Some are defiant. Some are broken. One tells you: <em>"We were told everyone in the village was the enemy. When you're scared enough for long enough, you start to believe that."</em></p>
+  `,
+  prompt: "You have the information to write a major story about My Lai. How do you approach it?",
+  choices: [
+    {
+      label: "A",
+      text: "Push to publish everything immediately — the photographs, the testimony, the cover-up. The American public needs to know what is being done in their name.",
+      consequence: `<p>Your story runs with everything: the body count, the ages of the victims, the cover-up by officers in the chain of command, Thompson's intervention. The reaction is seismic. Pro-war Americans accuse you of treason. Anti-war Americans see confirmation of everything they've been saying. Veterans are torn — some feel betrayed by Calley, others feel the whole military is being scapegoated for a war it was ordered to fight.</p>
+      <p>The story forces America to confront an unbearable question: <em>Are we the good guys?</em></p>
+      <p>Calley's trial becomes a national spectacle. But the deeper questions — about the officers who ordered the operation, the generals who covered it up, and the policies that created the conditions for My Lai — are never fully addressed.</p>`,
+      next: "scene8"
+    },
+    {
+      label: "B",
+      text: "Investigate further before publishing — if you rush this story and get any detail wrong, the military will use it to discredit the entire account. The truth needs to be airtight.",
+      consequence: `<p>You spend weeks verifying every detail. You interview more than a dozen soldiers from Charlie Company. You obtain copies of the false after-action reports. You confirm the cover-up through multiple sources. When you finally publish, the story is bulletproof.</p>
+      <p>The military attempts to discredit the reporting anyway. But the evidence is overwhelming. The photographs are undeniable. The testimony is consistent. The cover-up unravels.</p>
+      <p>A retired general, speaking off the record, tells you: <em>"My Lai wasn't the only one. It was just the one that got caught."</em> You don't know if he's telling the truth. But you know that the war has crossed a line from which there is no return.</p>`,
+      next: "scene8"
+    }
+  ]
+},
+
+// ------ SCENE 8: 1968 / NIXON ------
+scene8: {
+  location: "Washington, D.C. / Chicago",
+  date: "1968",
+  stop: "washington",
+  title: "1968",
+  narrative: `
+    <p>1968 is the year America tears itself apart.</p>
+
+    <p>On <strong>March 31</strong>, President Johnson goes on national television. The nation expects a speech about Vietnam. Instead, Johnson announces: <strong>"I shall not seek, and I will not accept, the nomination of my party for another term as your president."</strong> The Vietnam War has destroyed his presidency.</p>
+
+    <p>On <strong>April 4</strong>, Martin Luther King Jr. is assassinated in Memphis. Cities across America erupt in riots.</p>
+
+    <p>On <strong>June 5</strong>, Robert F. Kennedy — running for president on an anti-war platform — is assassinated in Los Angeles, moments after winning the California primary.</p>
+
+    <p>In <strong>August</strong>, the Democratic National Convention in Chicago becomes a battlefield. Inside the convention hall, Democrats fight over the war. Outside, Chicago police attack anti-war protesters with clubs and tear gas on live national television. Reporters are beaten. The crowd chants: <strong>"The whole world is watching!"</strong></p>
+
+    <figure class="scene-photo">
+      <img src="antiwar-protest.jpg" alt="Anti-war protesters clash with police outside the 1968 Democratic National Convention in Chicago">
+      <figcaption>Anti-war protesters face police outside the 1968 Democratic National Convention in Chicago, August 1968. The violence, broadcast live on national television, deepened the divisions tearing America apart. An official investigation later called it a "police riot."</figcaption>
+    </figure>
+
+    <p>Across the country, the anti-war movement has grown from small campus teach-ins to a mass movement. Young men burn their <span class="vocab-term" data-def="Draft cards were official documents issued by the Selective Service System that classified men for military conscription. Burning a draft card was a federal crime, but it became a prominent form of anti-war protest. The draft fell disproportionately on working-class and minority men — those with college deferments could avoid service.">draft cards</span>. Protesters chant: <em>"Hey, hey, LBJ, how many kids did you kill today?"</em> Families are divided — fathers who fought in World War II against sons who refuse to fight in Vietnam.</p>
+
+    <div class="historical-note">
+      <strong>Historical context:</strong> The draft — the Selective Service System — was a central driver of opposition to the war. Between 1964 and 1973, approximately 2.2 million men were drafted for service in Vietnam. The draft fell disproportionately on working-class and minority communities. College students could receive deferments, creating a system where those with fewer economic resources were more likely to fight and die. Of the 58,220 Americans killed in Vietnam, a disproportionate number were African American and came from lower-income backgrounds.
+    </div>
+
+    <p>On <strong>November 5, 1968</strong>, <strong>Richard Nixon</strong> wins the presidential election. He has campaigned on a promise of <strong>"peace with honor"</strong> and claims to have a <strong>"secret plan"</strong> to end the war. Millions of Americans vote for him because they want the war to be over.</p>
+
+    <p>Nixon's actual plan, as it will become clear, involves escalating the bombing while slowly withdrawing ground troops — a strategy called <span class="vocab-term" data-def="Vietnamization was Nixon's policy of gradually transferring combat responsibility from American forces to the South Vietnamese military (ARVN) while withdrawing U.S. troops. The goal was to end American involvement while preserving South Vietnam. Critics argued it was a way to continue the war while reducing American casualties enough to quiet domestic opposition.">Vietnamization</span>. It will take four more years, tens of thousands more American deaths, and the expansion of the war into Cambodia and Laos before the last American troops come home.</p>
+  `,
+  prompt: "It's 1968. The war is at a crossroads. What is your assessment?",
+  choices: [
+    {
+      label: "A",
+      text: "\"Nixon's Vietnamization could work — train the South Vietnamese, bring our troops home gradually, and negotiate from a position of strength. It's the only realistic option left.\"",
+      consequence: `<p>Many Americans share your cautious optimism. Nixon's approval ratings are initially strong. The troop withdrawals begin — 25,000 in 1969, then more. For a moment, it looks like the war might wind down.</p>
+      <p>But behind the scenes, Nixon is not winding down. He is expanding. The secret bombing of Cambodia is already underway. And the South Vietnamese army, despite years of American training and billions in equipment, is not ready to stand alone. Everyone in Saigon knows it. Nobody wants to say it.</p>`,
+      next: "scene9"
+    },
+    {
+      label: "B",
+      text: "\"This war cannot be won — not by Vietnamization, not by bombing, not by any strategy. The U.S. needs to negotiate withdrawal now, before more people die for a lost cause.\"",
+      consequence: `<p>Your editorial draws fierce criticism. You are called unpatriotic. A congressman reads your name into the Congressional Record as an example of defeatist media. But the letters from soldiers and veterans that flood your mailbox tell a different story. Many of them agree with you. Some of them have seen things they can never unsee.</p>
+      <p>One letter, from a sergeant in the Mekong Delta, reads: <em>"You said what every grunt over here already knows. This war is over. They just haven't told us yet."</em></p>`,
+      next: "scene9"
+    },
+    {
+      label: "C",
+      text: "\"The real story isn't the war anymore — it's what the war is doing to America. The draft, the protests, the assassinations, the lies. This country is coming apart, and Vietnam is the wound.\"",
+      consequence: `<p>You write a long piece about the fracturing of American society. You interview draft resisters and Gold Star mothers. You talk to veterans who support the war and veterans who have thrown their medals over the White House fence. You describe a country that no longer agrees on basic facts, let alone policy.</p>
+      <p>A historian you interview says: <em>"Vietnam didn't create these divisions — race, class, generational. But it ripped the bandages off and poured salt in every wound this country has. We may be looking at a turning point in American public life."</em> He is right.</p>`,
+      next: "scene9"
+    }
+  ]
+},
+
+// ------ SCENE 9: VIETNAMIZATION & CAMBODIA ------
+scene9: {
+  location: "Cambodia / United States",
+  date: "1969–1971",
+  stop: "cambodia",
+  title: "Vietnamization",
+  narrative: `
+    <p>Nixon's plan is in motion. American troops are coming home — slowly. There are 536,000 in Vietnam when Nixon takes office. By the end of 1971, there will be 156,000. But the withdrawal is not the whole story.</p>
+
+    <p>In <strong>March 1969</strong>, Nixon secretly orders the bombing of Cambodia. <span class="vocab-term" data-def="Operation Menu was the secret U.S. bombing campaign targeting North Vietnamese and Viet Cong bases in Cambodia, conducted from March 1969 to May 1970. The bombing was kept secret from Congress and the American public. Over 110,000 tons of bombs were dropped. The campaign was illegal under both U.S. and international law, as Cambodia was a neutral country.">Operation Menu</span> drops over 110,000 tons of bombs on a neutral country. The American public does not know. Congress does not know. The bombing is hidden through falsified military records.</p>
+
+    <p>On <strong>April 30, 1970</strong>, Nixon goes on television and announces that American and South Vietnamese forces are invading Cambodia to destroy North Vietnamese sanctuaries. He calls it an "incursion," not an invasion. The announcement ignites the largest wave of protests in American history.</p>
+
+    <figure class="scene-photo">
+      <img src="kent-state.jpg" alt="Kent State University, May 4, 1970 — aftermath of the National Guard shooting">
+      <figcaption>Kent State University, May 4, 1970. Ohio National Guard troops fired into a crowd of unarmed student protesters, killing four and wounding nine. The youngest victim, Jeffrey Miller, was 20 years old. The photograph of Mary Ann Vecchio kneeling over his body became an enduring image of the era.</figcaption>
+    </figure>
+
+    <p>On <strong>May 4, 1970</strong>, at <strong>Kent State University</strong> in Ohio, National Guard troops fire into a crowd of unarmed student protesters. <strong>Four students are killed. Nine are wounded.</strong> The nearest victim is 60 feet away. The farthest is almost 400 feet away. Some of the victims are not even protesters — they are walking between classes.</p>
+
+    <p>The country is stunned. Over 4 million students walk out of classes in protest. More than 450 universities shut down. Neil Young writes "Ohio": <em>"Four dead in Ohio."</em></p>
+
+    <div class="historical-note">
+      <strong>Historical context:</strong> In June 1971, <strong>Daniel Ellsberg</strong>, a former Defense Department analyst, leaked the <strong>Pentagon Papers</strong> to the New York Times. The papers were a 7,000-page secret history of U.S. involvement in Vietnam, commissioned by Secretary McNamara. They revealed that the government had systematically lied to Congress and the public about the war — about the reasons for involvement, about the prospects for victory, and about the scale of the fighting. The papers showed that four successive administrations had expanded the war while telling the public the opposite. The Nixon administration attempted to block publication, but the Supreme Court ruled in favor of the press in <em>New York Times Co. v. United States</em>.
+    </div>
+
+    <p>The Pentagon Papers confirm what many Americans have suspected: their government has been lying about Vietnam for years. The papers reveal that the Gulf of Tonkin incident was manipulated, that the bombing campaigns were known to be ineffective, and that military leaders privately admitted the war was unwinnable even as they publicly claimed progress.</p>
+
+    <p>Nixon, furious about the leak, creates a secret unit called the "Plumbers" to stop leaks and discredit Ellsberg. Their activities will eventually lead to the <strong>Watergate scandal</strong> and Nixon's resignation.</p>
+  `,
+  prompt: "The Cambodia bombing and the Pentagon Papers have blown the war wide open. What angle do you pursue?",
+  choices: [
+    {
+      label: "A",
+      text: "Focus on Cambodia — the secret bombing of a neutral country without congressional authorization is an impeachable abuse of power. This is the story.",
+      consequence: `<p>You dig into the Cambodia story. You find pilots who were ordered to falsify mission reports, listing their targets inside South Vietnam when they were actually bombing Cambodia. You document the chain of command — the orders that went from Nixon and Kissinger through back channels that bypassed normal military reporting.</p>
+      <p>The secret bombing killed an estimated 100,000 Cambodian civilians and destabilized the country, contributing to the rise of the <strong>Khmer Rouge</strong> — a genocidal regime that would go on to kill nearly 2 million Cambodians. The full consequences of the bombing will take years to unfold, but you can already see the devastation.</p>
+      <p>Your reporting contributes to the growing case for the <span class="vocab-term" data-def="The War Powers Act (War Powers Resolution) of 1973 was passed by Congress over Nixon's veto to limit the President's ability to commit U.S. forces to armed conflict without congressional approval. It requires the President to notify Congress within 48 hours of deploying forces and limits unauthorized deployments to 60 days.">War Powers Act</span>, which Congress will pass in 1973 to prevent future presidents from waging secret wars.</p>`,
+      next: "scene10"
+    },
+    {
+      label: "B",
+      text: "Focus on the Pentagon Papers — the proof that the government lied about the war for over a decade. The credibility of American democracy is at stake.",
+      consequence: `<p>You follow the Pentagon Papers story. You read as much of the 7,000 pages as you can get your hands on. The picture that emerges is devastating: presidents who knew the war was unwinnable but escalated anyway. Casualty projections that were hidden from the public. Intelligence assessments that were ignored or suppressed when they didn't support the policy.</p>
+      <p>You interview Daniel Ellsberg. He tells you: <em>"I spent years copying these documents because I realized that the war could not have continued if the American people had known the truth. They were lied to, systematically, by their own government. And people died because of those lies."</em></p>
+      <p>The Pentagon Papers don't end the war. But they shatter whatever trust remains between the American government and its people. That trust will not be rebuilt for a generation — if ever.</p>`,
+      next: "scene10"
+    }
+  ]
+},
+
+// ------ SCENE 10: PARIS PEACE ACCORDS ------
+scene10: {
+  location: "Paris, France",
+  date: "January 27, 1973",
+  stop: "paris",
+  title: "Peace with Honor",
+  narrative: `
+    <p>The negotiations have dragged on for years. Henry Kissinger and North Vietnamese negotiator Le Duc Tho have been meeting in secret in Paris since 1969. The talks have stalled, collapsed, and restarted multiple times.</p>
+
+    <p>In December 1972, when negotiations stall again, Nixon orders the most intense bombing of the entire war — the <strong>"Christmas Bombings"</strong> of Hanoi and Haiphong. For eleven days, B-52s pound North Vietnam's cities. Fifteen B-52s are shot down. Hundreds of Vietnamese civilians are killed. The world condemns the bombing.</p>
+
+    <p>On <strong>January 27, 1973</strong>, the <strong>Paris Peace Accords</strong> are signed. You are in the room at the Hotel Majestic in Paris. The document commits to:</p>
+
+    <p><strong>1.</strong> An immediate ceasefire throughout Vietnam.</p>
+    <p><strong>2.</strong> Withdrawal of all remaining U.S. military forces within 60 days.</p>
+    <p><strong>3.</strong> Release of all prisoners of war.</p>
+    <p><strong>4.</strong> North Vietnamese troops currently in South Vietnam will remain in place.</p>
+
+    <figure class="scene-photo">
+      <img src="paris-peace.jpg" alt="Signing of the Paris Peace Accords, January 27, 1973">
+      <figcaption>The signing of the Paris Peace Accords at the Hotel Majestic in Paris, January 27, 1973. Henry Kissinger and Le Duc Tho were awarded the Nobel Peace Prize for the agreement. Tho refused to accept it, saying peace had not actually been achieved. He was right.</figcaption>
+    </figure>
+
+    <p>Kissinger calls it <strong>"peace with honor."</strong> Le Duc Tho and Kissinger are jointly awarded the Nobel Peace Prize. Tho refuses his, saying that peace has not actually been achieved in Vietnam. He is right.</p>
+
+    <div class="historical-note">
+      <strong>Historical context:</strong> The Paris Peace Accords were, in practical terms, a face-saving agreement that allowed the United States to withdraw. The terms were remarkably similar to what could have been negotiated years earlier — North Vietnamese troops remained in the South, and everyone knew the ceasefire would not hold. Nixon promised South Vietnamese President Thieu that the U.S. would intervene militarily if the North violated the accords. That promise would prove empty. The terms meant that over 20,000 additional American soldiers had died between 1969 and 1973 for an agreement that was essentially the same as what had been available in 1969.
+    </div>
+
+    <p>On <strong>March 29, 1973</strong>, the last American combat troops leave Vietnam. <strong>Operation Homecoming</strong> brings 591 prisoners of war home. The footage of gaunt men descending airplane stairs and embracing their families plays on every television in America.</p>
+
+    <p>The war is over for America. It is not over for Vietnam.</p>
+
+    <p>Everyone in Saigon — the diplomats, the journalists, the Vietnamese — knows the peace will not hold. North Vietnam has 150,000 troops in the South. The ARVN is demoralized and corrupt. Congress, exhausted by the war, will cut military aid to South Vietnam year after year. The end is only a matter of time.</p>
+
+    <p>You file your last dispatch from Saigon. You've covered this war for almost twenty years. As you type, you think about the French colonel who told you at Dien Bien Phu: <em>"Tell your country not to make our mistake."</em></p>
+  `,
+  prompt: null,
+  choices: [],
+  auto_next: "epilogue"
+},
+
+// ------ EPILOGUE ------
+epilogue: {
+  location: "Epilogue",
+  date: "",
+  stop: "saigon",
+  title: "The Fall and the Legacy",
+  narrative: `
+    <div class="epilogue-section">
+      <p>The peace lasted two years.</p>
+    </div>
+
+    <div class="epilogue-section">
+      <h3>The Fall of Saigon — April 30, 1975</h3>
+      <p>Without American military support, South Vietnam crumbles. In early 1975, North Vietnamese forces launch a massive offensive. ARVN resistance collapses. City after city falls.</p>
+      <p>On April 29–30, 1975, the United States conducts <strong>Operation Frequent Wind</strong> — the chaotic helicopter evacuation of Saigon. For 18 hours, helicopters shuttle Americans and at-risk Vietnamese from rooftops to aircraft carriers offshore. Thousands of desperate South Vietnamese crowd the embassy gates, begging to be taken. Many are left behind.</p>
+      <figure class="scene-photo">
+        <img src="fall-of-saigon.jpg" alt="Helicopter evacuation from a rooftop during the fall of Saigon, April 1975">
+        <figcaption>Vietnamese civilians and Americans climb a ladder to a helicopter on a rooftop in Saigon during the final evacuation, April 29, 1975. This photograph, often mistakenly identified as the U.S. Embassy, was actually taken at 22 Gia Long Street, an apartment building used by the CIA. It became the defining image of the war's end.</figcaption>
+      </figure>
+      <p>At 7:53 a.m. on April 30, the last American helicopter lifts off from the embassy roof. By noon, North Vietnamese tanks crash through the gates of Independence Palace. Saigon falls. Vietnam is unified under communist rule. Saigon is renamed <strong>Ho Chi Minh City</strong>.</p>
+    </div>
+
+    <div class="epilogue-section">
+      <h3>The Cost</h3>
+      <ul>
+        <li><strong>58,220 Americans killed.</strong> 304,000 wounded. An average age of 23.</li>
+        <li><strong>An estimated 2–3 million Vietnamese killed</strong> — North and South, military and civilian.</li>
+        <li><strong>Millions more affected in Laos and Cambodia</strong> — including the destabilization that led to the Khmer Rouge genocide.</li>
+        <li><strong>Agent Orange:</strong> The U.S. sprayed 20 million gallons of chemical herbicides. Health effects — cancer, birth defects — continue to this day in both Vietnamese civilians and American veterans.</li>
+        <li><strong>Unexploded ordnance:</strong> Over 40,000 Vietnamese have been killed by unexploded American bombs and mines since the war ended.</li>
+      </ul>
+    </div>
+
+    <div class="epilogue-section">
+      <h3>The Legacy</h3>
+      <ul>
+        <li><strong>The War Powers Act (1973):</strong> Congress limited presidential authority to commit forces to armed conflict without congressional approval — a direct response to how the Vietnam War was waged without a formal declaration of war.</li>
+        <li><strong>The End of the Draft (1973):</strong> The military shifted to an all-volunteer force. The draft has not been used since.</li>
+        <li><strong>The Vietnam Syndrome:</strong> America's reluctance to commit ground troops to foreign conflicts — shaped by Vietnam — influenced U.S. foreign policy for decades.</li>
+        <li><strong>The Veterans:</strong> Vietnam veterans came home to a country that didn't want to look at them. Many suffered from <span class="vocab-term" data-def="Post-traumatic stress disorder, a mental health condition triggered by experiencing or witnessing terrifying events. An estimated 30% of Vietnam veterans experienced PTSD. Many also suffered from the effects of Agent Orange exposure. The recognition of PTSD as a diagnosis was partly driven by the experiences of Vietnam veterans.">PTSD</span>, homelessness, and substance abuse. Unlike World War II veterans, they received no victory parades.</li>
+        <li><strong>The Vietnam Veterans Memorial (1982):</strong> A black granite wall inscribed with the names of 58,318 Americans who died. Designed by Maya Lin, a 21-year-old Yale architecture student, the memorial is the most visited monument in Washington, D.C.</li>
+      </ul>
+      <figure class="scene-photo">
+        <img src="vietnam-memorial.jpg" alt="The Vietnam Veterans Memorial wall in Washington, D.C.">
+        <figcaption>The Vietnam Veterans Memorial in Washington, D.C. The wall bears the names of every American killed or missing in action. Visitors leave letters, flowers, photographs, and personal items at its base. The memorial was dedicated on November 13, 1982.</figcaption>
+      </figure>
+    </div>
+
+    <div class="epilogue-section">
+      <h3>Normalization</h3>
+      <p>In 1995, the United States and Vietnam normalized diplomatic relations. Today, Vietnam is one of America's largest trading partners in Southeast Asia. American tourists visit the Cu Chi tunnels. Vietnamese students study at American universities. The relationship between the two countries has been transformed — though the scars of the war remain visible in both nations.</p>
+    </div>
+
+    <div class="epilogue-section">
+      <h3>What the War Revealed</h3>
+      <p>Vietnam revealed the limits of American military power — that the most powerful nation on earth could not defeat a determined enemy fighting on its own soil. It revealed that governments lie, that official optimism can mask catastrophic failure, and that a war waged without the informed consent of the people will eventually tear a democracy apart.</p>
+      <p>It also revealed the power of journalism, of protest, and of individual conscience. Reporters who told the truth, soldiers like Hugh Thompson who said "no," and citizens who demanded accountability all played roles in ending the war. The question Vietnam asks every generation is: <strong><em>What do citizens owe their country when their country asks them to support something they believe is wrong?</em></strong></p>
+    </div>
+
+    <div class="epilogue-section">
+      <h3>Explore the Primary Sources</h3>
+      <p>The National Archives maintains extensive records from the Vietnam War, including declassified documents, photographs, and oral histories:</p>
+      <p><a href="https://www.archives.gov/research/military/vietnam-war" target="_blank" rel="noopener" style="color: var(--gold); text-decoration: underline; font-weight: bold;">National Archives — Vietnam War Records</a></p>
+      <p><a href="https://www.archives.gov/research/pentagon-papers" target="_blank" rel="noopener" style="color: var(--gold); text-decoration: underline; font-weight: bold;">National Archives — The Pentagon Papers</a></p>
+    </div>
+  `,
+  prompt: null,
+  choices: [],
+  isEpilogue: true
+}
+
+};
+
+// ============================================================
+// GAME ENGINE
+// ============================================================
+function startGame() {
+  document.getElementById('title-screen').style.display = 'none';
+  document.getElementById('map-panel').classList.add('active');
+  document.getElementById('game-container').classList.add('active');
+  document.getElementById('mapbox-container').offsetHeight;
+  initMapbox();
+  renderScene('scene1');
+}
+
+function renderScene(sceneId) {
+  if (state.sceneHistory[state.sceneHistory.length - 1] !== sceneId) {
+    state.sceneHistory.push(sceneId);
+  }
+  state.currentScene = sceneId;
+  const scene = scenes[sceneId];
+  const container = document.getElementById('game-container');
+
+  if (scene.stop) {
+    updateRouteMap(scene.stop, scene.location, scene.date);
+  }
+
+  let html = '<div class="fade-in">';
+
+  if (scene.isEpilogue) {
+    state.reachedEpilogue = true;
+  }
+
+  // Navigation buttons
+  if (sceneId !== 'scene1') {
+    html += `<div class="nav-buttons">`;
+    html += `<button class="back-btn" onclick="goBack()">&larr; Back</button>`;
+    if (state.reachedEpilogue && state.forwardHistory.length > 0) {
+      html += `<button class="back-btn forward-btn" onclick="goForward()">Forward &rarr;</button>`;
+    }
+    html += `</div>`;
+  }
+
+  if (scene.location) {
+    html += `<div class="scene-location">${scene.location}</div>`;
+  }
+  if (scene.date) {
+    html += `<div class="scene-date">${scene.date}</div>`;
+  }
+  if (scene.title) {
+    html += `<div class="scene-title">${scene.title}</div>`;
+  }
+
+  html += `<div class="scene-narrative">${scene.narrative}</div>`;
+
+  if (scene.choices && scene.choices.length > 0) {
+    if (scene.prompt) {
+      html += `<div class="choice-prompt">${scene.prompt}</div>`;
+    }
+    html += '<div class="choices">';
+    scene.choices.forEach((choice, i) => {
+      html += `<button class="choice-btn" onclick="makeChoice('${sceneId}', ${i})">
+        <span class="choice-label">${choice.label}.</span> ${choice.text}
+      </button>`;
+    });
+    html += '</div>';
+  } else if (scene.auto_next) {
+    html += `<button class="continue-btn" onclick="renderScene('${scene.auto_next}')">Continue</button>`;
+  } else if (scene.isEpilogue) {
+    html += `
+    <div class="reflection-section">
+      <h2>Correspondent's Debrief</h2>
+      <p class="reflection-intro">Answer the following questions thoughtfully and in complete sentences. When you are finished, enter your name and click "Save as PDF" to download your response for submission.</p>
+
+      <div class="name-field">
+        <label for="student-name">Your Name</label>
+        <input type="text" id="student-name" placeholder="First and Last Name">
+      </div>
+
+      <div class="reflection-field">
+        <label>1. The Gulf of Tonkin Resolution gave the President broad authority to wage war based on disputed evidence. The United States never formally declared war on Vietnam. What does this tell you about how democracies make decisions about war? What safeguards should exist to prevent a nation from going to war based on incomplete or manipulated information?</label>
+        <textarea id="reflection-1" placeholder="Write your response here..."></textarea>
+      </div>
+
+      <div class="reflection-field">
+        <label>2. Throughout the war, there was a "credibility gap" between what the government told the American public and what was actually happening on the ground. The Pentagon Papers proved the government had lied for years. When citizens discover their government has lied about a war, what are the consequences — for the war, for public trust, and for democracy itself?</label>
+        <textarea id="reflection-2" placeholder="Write your response here..."></textarea>
+      </div>
+
+      <div class="reflection-field">
+        <label>3. My Lai, the secret bombing of Cambodia, and the Pentagon Papers all raised questions about accountability. Hugh Thompson risked his career to stop a massacre. Daniel Ellsberg risked prison to expose government lies. Seymour Hersh risked his reputation to publish the truth. What obligations do individuals — soldiers, government officials, journalists, citizens — have when they witness wrongdoing by their own government or military?</label>
+        <textarea id="reflection-3" placeholder="Write your response here..."></textarea>
+      </div>
+
+      <div class="reflection-actions">
+        <button class="save-pdf-btn" onclick="savePDF()">Save as PDF</button>
+        <button class="restart-btn" onclick="restartGame()">Start Over</button>
+      </div>
+      <p class="pdf-note">Your PDF will include your name, your responses, and the reporting choices you made during the simulation.</p>
+    </div>`;
+  }
+
+  html += '</div>';
+  container.innerHTML = html;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function makeChoice(sceneId, choiceIndex) {
+  const scene = scenes[sceneId];
+  const choice = scene.choices[choiceIndex];
+
+  state.decisions.push({ scene: sceneId, choice: choice.label });
+
+  if (choice.effect) choice.effect();
+
+  // Show field dispatch modal after scene 3 (Gulf of Tonkin)
+  if (sceneId === 'scene3') {
+    state._pendingChoice = choice;
+    showReportModal();
+    return;
+  }
+
+  applyChoice(choice);
+}
+
+function applyChoice(choice) {
+  const container = document.getElementById('game-container');
+  const choicesEl = container.querySelector('.choices');
+  if (choicesEl) {
+    let consequenceHtml = `<div class="consequence fade-in">${choice.consequence}</div>`;
+    consequenceHtml += `<button class="continue-btn fade-in" onclick="renderScene('${choice.next}')">Continue</button>`;
+    choicesEl.outerHTML = consequenceHtml;
+
+    const promptEl = container.querySelector('.choice-prompt');
+    if (promptEl) promptEl.style.display = 'none';
+  }
+}
+
+function showReportModal() {
+  document.getElementById('report-overlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function submitReport() {
+  const name = document.getElementById('report-correspondent-name').value.trim();
+  if (!name) {
+    alert('You must enter your name to file this dispatch.');
+    document.getElementById('report-correspondent-name').focus();
+    return;
+  }
+
+  state.report = {
+    correspondentName: document.getElementById('report-correspondent-name').value.trim(),
+    pressCredential: document.getElementById('report-credential').value.trim(),
+    attacksObserved: document.getElementById('report-attacks').value.trim(),
+    evidenceAssessment: document.getElementById('report-evidence').value.trim(),
+    observations: document.getElementById('report-observations').value.trim(),
+    significance: document.getElementById('report-significance').value.trim()
+  };
+
+  document.getElementById('report-overlay').classList.remove('active');
+  document.body.style.overflow = '';
+
+  // Show the LBJ broadcast
+  showBroadcastModal();
+}
+
+function showBroadcastModal() {
+  document.getElementById('broadcast-overlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeBroadcastModal() {
+  document.getElementById('broadcast-overlay').classList.remove('active');
+  document.body.style.overflow = '';
+
+  if (state._pendingChoice) {
+    applyChoice(state._pendingChoice);
+    state._pendingChoice = null;
+  }
+}
+
+function goBack() {
+  if (state.sceneHistory.length > 1) {
+    const currentScene = state.sceneHistory.pop();
+    state.forwardHistory.push(currentScene);
+    const prevScene = state.sceneHistory[state.sceneHistory.length - 1];
+    renderScene(prevScene);
+  }
+}
+
+function goForward() {
+  if (state.forwardHistory.length > 0) {
+    const nextScene = state.forwardHistory.pop();
+    state.sceneHistory.push(nextScene);
+    renderScene(nextScene);
+  }
+}
+
+function restartGame() {
+  state.currentScene = null;
+  state.tonkinChoice = null;
+  state.decisions = [];
+  state.visitedStops = [];
+  state.sceneHistory = [];
+  state.forwardHistory = [];
+  state.reachedEpilogue = false;
+  state.report = null;
+
+  document.getElementById('map-panel').classList.remove('active');
+  document.getElementById('game-container').classList.remove('active');
+  document.getElementById('game-container').innerHTML = '';
+  document.getElementById('title-screen').style.display = 'flex';
+
+  Object.values(mapboxMarkers).forEach(({ element }) => {
+    element.classList.remove('visited', 'current');
+  });
+  Object.values(mapboxDangerMarkers).forEach(({ element }) => {
+    element.classList.remove('visible');
+  });
+  if (mapboxMap && mapboxMap.getSource('hcm-trail')) {
+    mapboxMap.getSource('hcm-trail').setData({
+      type: 'Feature',
+      geometry: { type: 'LineString', coordinates: [] }
+    });
+  }
+  document.getElementById('callout-location').textContent = '';
+  document.getElementById('callout-date').textContent = '';
+  if (mapboxMap) {
+    mapboxMap.flyTo({ center: [106.5, 16.0], zoom: 5, speed: 1.5 });
+  }
+
+  window.scrollTo({ top: 0 });
+}
+
+// ============================================================
+// PDF GENERATION
+// ============================================================
+function savePDF() {
+  const name = document.getElementById('student-name').value.trim();
+  const r1 = document.getElementById('reflection-1').value.trim();
+  const r2 = document.getElementById('reflection-2').value.trim();
+  const r3 = document.getElementById('reflection-3').value.trim();
+
+  if (!name) {
+    alert('Please enter your name before saving.');
+    document.getElementById('student-name').focus();
+    return;
+  }
+
+  if (!r1 || !r2 || !r3) {
+    alert('Please answer all three reflection questions before saving.');
+    return;
+  }
+
+  const choiceLabels = {
+    scene1: 'Scene 1 — Dien Bien Phu',
+    scene2: 'Scene 2 — The Burning Monk',
+    scene3: 'Scene 3 — Gulf of Tonkin',
+    scene4: 'Scene 4 — Rolling Thunder',
+    scene5: 'Scene 5 — The Jungle',
+    scene7: 'Scene 7 — My Lai',
+    scene8: 'Scene 8 — 1968',
+    scene9: 'Scene 9 — Vietnamization'
+  };
+
+  let choicesHtml = '';
+  state.decisions.forEach(d => {
+    const label = choiceLabels[d.scene] || d.scene;
+    choicesHtml += `<tr><td style="padding:4px 12px 4px 0;font-weight:600;white-space:nowrap">${label}</td><td style="padding:4px 0">Choice ${d.choice}</td></tr>`;
+  });
+
+  if (state.tonkinChoice) {
+    choicesHtml += `<tr><td style="padding:4px 12px 4px 0;font-weight:600">Tonkin Reporting</td><td style="padding:4px 0">${state.tonkinChoice === 'official' ? 'Reported official story' : 'Reported discrepancies'}</td></tr>`;
+  }
+
+  const printWindow = window.open('', '_blank');
+  printWindow.document.write(`
+<!DOCTYPE html>
+<html>
+<head>
+<title>Vietnam War Correspondent Debrief — ${name}</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Source Sans Pro', Arial, sans-serif;
+    color: #1a1a1a;
+    padding: 0.5in 0.75in;
+    line-height: 1.6;
+    font-size: 11pt;
+  }
+  .header {
+    text-align: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #2d5016;
+  }
+  .header h1 {
+    font-size: 20pt;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #2d5016;
+    margin-bottom: 2px;
+  }
+  .header .sub {
+    font-size: 10pt;
+    color: #1a2a4a;
+    font-weight: 600;
+  }
+  .meta {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    font-size: 10pt;
+  }
+  .meta-label { font-weight: 700; color: #1a2a4a; }
+  h2 {
+    font-size: 13pt;
+    color: #1a2a4a;
+    margin: 20px 0 10px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #ddd;
+  }
+  .question { margin-bottom: 18px; }
+  .question .q-label { font-weight: 700; font-size: 10pt; color: #1a2a4a; margin-bottom: 4px; }
+  .question .q-text { font-size: 10pt; margin-bottom: 6px; color: #444; font-style: italic; }
+  .question .answer { font-size: 11pt; line-height: 1.7; padding: 8px 0; white-space: pre-wrap; }
+  table { font-size: 10pt; border-collapse: collapse; }
+  .footer {
+    margin-top: 30px;
+    padding-top: 12px;
+    border-top: 1px solid #ddd;
+    font-size: 8pt;
+    color: #999;
+    text-align: center;
+  }
+  @media print { body { padding: 0; } }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Vietnam: 1954–1975</h1>
+  <div class="sub">Correspondent's Debrief</div>
+</div>
+<div class="meta">
+  <div><span class="meta-label">Student:</span> ${name}</div>
+  <div><span class="meta-label">Date:</span> ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+</div>
+<h2>Reporting Choices</h2>
+<table>${choicesHtml}</table>
+
+${state.report ? `
+<h2>Field Dispatch — Gulf of Tonkin</h2>
+<div style="font-size:10pt;line-height:1.6;padding:12px;border:1px solid #ddd;background:#faf8f3;margin-bottom:16px">
+  <p><strong>Correspondent:</strong> ${state.report.correspondentName} &nbsp;&nbsp; <strong>Credential:</strong> ${state.report.pressCredential || 'N/A'}</p>
+  <p><strong>Attacks Observed:</strong> ${state.report.attacksObserved || 'N/A'} &nbsp;&nbsp; <strong>Evidence Assessment:</strong> ${state.report.evidenceAssessment || 'N/A'}</p>
+  ${state.report.observations ? `<p><strong>Observations:</strong> ${state.report.observations}</p>` : ''}
+  ${state.report.significance ? `<p><strong>Significance:</strong> ${state.report.significance}</p>` : ''}
+</div>
+` : ''}
+
+<h2>Reflection Questions</h2>
+<div class="question">
+  <div class="q-label">Question 1</div>
+  <div class="q-text">The Gulf of Tonkin Resolution authorized war based on disputed evidence. What does this tell you about how democracies should make decisions about war?</div>
+  <div class="answer">${r1}</div>
+</div>
+<div class="question">
+  <div class="q-label">Question 2</div>
+  <div class="q-text">The "credibility gap" and Pentagon Papers proved the government lied about the war. What are the consequences when citizens discover their government has lied?</div>
+  <div class="answer">${r2}</div>
+</div>
+<div class="question">
+  <div class="q-label">Question 3</div>
+  <div class="q-text">My Lai, the Cambodia bombing, and the Pentagon Papers raised questions about individual responsibility. What obligations do individuals have when they witness wrongdoing?</div>
+  <div class="answer">${r3}</div>
+</div>
+<div class="footer">
+  Vietnam: 1954–1975 — Historical Simulation for 9th Grade U.S. History
+</div>
+</body>
+</html>`);
+
+  printWindow.document.close();
+  setTimeout(() => { printWindow.print(); }, 600);
+}
+</script>
+
+<!-- Field Dispatch Modal -->
+<div class="report-overlay" id="report-overlay">
+  <div class="report-modal">
+    <h2>Field Dispatch</h2>
+    <div class="report-subtitle">Press Corps — Southeast Asia Bureau</div>
+    <div class="report-classification">PRIORITY FILING — GULF OF TONKIN INCIDENT</div>
+
+    <div class="report-intro">
+      A major incident has occurred in the Gulf of Tonkin. As a credentialed war correspondent, you are filing an urgent dispatch based on your reporting and sources. Complete this form carefully — your dispatch will be transmitted to your newspaper's editorial desk and may shape how millions of Americans understand what just happened.
+      <br><br><em style="font-size:0.85em;color:#888;">Note: This is an educational simulation. However, the decisions journalists made about how to report the Gulf of Tonkin incident had enormous consequences for public understanding of the war.</em>
+    </div>
+
+    <div class="report-field">
+      <label for="report-correspondent-name">Correspondent Name</label>
+      <input type="text" id="report-correspondent-name" placeholder="Your full name">
+    </div>
+
+    <div class="report-field">
+      <label for="report-credential">Press Credential Number</label>
+      <input type="text" id="report-credential" placeholder="Assign yourself a credential number">
+    </div>
+
+    <div class="report-field">
+      <label for="report-attacks">How many attacks on U.S. ships have been confirmed?</label>
+      <input type="text" id="report-attacks" placeholder="Number and description">
+    </div>
+
+    <div class="report-field">
+      <label for="report-evidence">How would you assess the evidence for the second attack (August 4)?</label>
+      <textarea id="report-evidence" placeholder="Describe the strength of the evidence — what is confirmed, what is disputed, what is unclear..."></textarea>
+    </div>
+
+    <div class="report-field">
+      <label for="report-observations">What have your sources told you about events in the Gulf of Tonkin?</label>
+      <textarea id="report-observations" placeholder="Include details from Navy sources, official statements, any contradictions you've noted..."></textarea>
+    </div>
+
+    <div class="report-field">
+      <label for="report-significance">What is the significance of the Gulf of Tonkin Resolution that Congress just passed?</label>
+      <textarea id="report-significance" placeholder="What powers does it give the President? What are the implications for American involvement in Vietnam?"></textarea>
+    </div>
+
+    <div class="legal-text">
+      I certify that this dispatch is based on my best reporting and judgment as a credentialed correspondent. I understand that this filing will be reviewed by my editors and may be published as reported. Accuracy and honesty are my professional obligations.
+    </div>
+
+    <button class="report-submit-btn" onclick="submitReport()">File Dispatch</button>
+  </div>
+</div>
+
+<!-- LBJ Broadcast Modal -->
+<div class="broadcast-overlay" id="broadcast-overlay">
+  <div class="broadcast-modal">
+    <h2>Address to the Nation</h2>
+    <div class="broadcast-dateline">August 4, 1964 — 11:36 p.m. EST</div>
+    <p class="broadcast-subtitle">President Lyndon Johnson addresses the nation to announce retaliatory air strikes against North Vietnam following the reported attacks in the Gulf of Tonkin. This address, and the congressional resolution that followed, became the legal basis for the Vietnam War.</p>
+    <div class="broadcast-frame" style="background: #1a1a1a; display: flex; align-items: center; justify-content: center; padding-bottom: 0; height: 300px;">
+      <div style="text-align: center; padding: 2rem; color: #999; font-family: 'Source Sans Pro', sans-serif;">
+        <p style="font-size: 1.5rem; margin-bottom: 0.5rem; color: #fff;">&#x1F4FA;</p>
+        <p style="font-size: 0.9rem; font-style: italic; margin-bottom: 1rem;">"The determination of all Americans to carry out our full commitment to the people and to the government of South Vietnam will be redoubled by this outrage."</p>
+        <p style="font-size: 0.8rem;">— President Lyndon B. Johnson, August 4, 1964</p>
+        <p style="font-size: 0.75rem; margin-top: 1rem; color: #666;">The Gulf of Tonkin Resolution passed 416–0 in the House and 88–2 in the Senate.</p>
+      </div>
+    </div>
+    <button class="broadcast-close-btn" onclick="closeBroadcastModal()">Continue</button>
+  </div>
+</div>
+
+</body>
+</html>
