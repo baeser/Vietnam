@@ -1503,7 +1503,7 @@ scene3: {
 
     <p>Captain John Herrick, commanding the patrol, sends an urgent cable to Washington: <strong>"Review of action makes many reported contacts and torpedoes fired appear doubtful. Freak weather effects on radar and overeager sonarmen may have accounted for many reports. No actual visual sightings by Maddox."</strong></p>
 
-    <p>But in Washington, Secretary of Defense <strong>Robert McNamara</strong> tells Congress the attack was unprovoked and definite. President Johnson goes on national television and announces retaliatory air strikes against North Vietnam.</p>
+    <p>But in Washington, Secretary of Defense <strong>Robert McNamara</strong> tells Congress the attack was unprovoked and definite. President Johnson goes on national television and announces retaliatory air strikes against North Vietnam. <a class="evidence-link" onclick="showTonkinLBJModal()" style="font-size:0.9rem;">&#x1F4FA; Watch LBJ's Gulf of Tonkin Address</a></p>
 
     <div class="historical-note">
       <strong>Historical context:</strong> On August 7, 1964, Congress passed the <strong>Gulf of Tonkin Resolution</strong>, authorizing the President to use military force in Southeast Asia without a formal declaration of war. It passed 416–0 in the House and 88–2 in the Senate. Only Senators Wayne Morse of Oregon and Ernest Gruening of Alaska voted no. Morse declared: "I believe that history will record we have made a great mistake." Declassified documents later confirmed that the second attack almost certainly never happened. Secretary McNamara later admitted: "We were wrong, terribly wrong."
@@ -2385,6 +2385,20 @@ function closeMLKModal() {
   document.body.style.overflow = '';
 }
 
+function showTonkinLBJModal() {
+  const iframe = document.getElementById('tonkin-lbj-iframe');
+  iframe.src = 'https://www.youtube.com/embed/dc9gJvpV8xo?autoplay=1';
+  document.getElementById('tonkin-lbj-overlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeTonkinLBJModal() {
+  const iframe = document.getElementById('tonkin-lbj-iframe');
+  iframe.src = '';
+  document.getElementById('tonkin-lbj-overlay').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
 function showLBJModal() {
   const iframe = document.getElementById('lbj-iframe');
   iframe.src = 'https://www.youtube.com/embed/vOs7BjZrgqY?autoplay=1';
@@ -2787,6 +2801,19 @@ ${state.report ? `
     <iframe class="pdf-frame" src="https://www2.hawaii.edu/~freeman/courses/phil100/17.%20MLK%20Beyond%20Vietnam.pdf"></iframe>
     <p class="pdf-note">Source: University of Hawaii. If the document does not load, <a href="https://www2.hawaii.edu/~freeman/courses/phil100/17.%20MLK%20Beyond%20Vietnam.pdf" target="_blank" rel="noopener" style="color:var(--accent);">click here to open it directly</a>.</p>
     <button class="evidence-close-btn" onclick="closeMLKModal()">Close</button>
+  </div>
+</div>
+
+<!-- LBJ Gulf of Tonkin Address Modal -->
+<div class="broadcast-overlay" id="tonkin-lbj-overlay">
+  <div class="broadcast-modal">
+    <h2>Presidential Address to the Nation</h2>
+    <div class="broadcast-dateline">August 4, 1964</div>
+    <p class="broadcast-subtitle">President Lyndon B. Johnson addresses the nation about the reported attacks on U.S. destroyers in the Gulf of Tonkin and announces retaliatory air strikes against North Vietnam. This speech — and the congressional resolution that followed — gave the President the authority to wage war without a formal declaration. The "second attack" that triggered this response almost certainly never happened.</p>
+    <div class="broadcast-frame">
+      <iframe src="" id="tonkin-lbj-iframe" allowfullscreen allow="autoplay; fullscreen"></iframe>
+    </div>
+    <button class="broadcast-close-btn" onclick="closeTonkinLBJModal()">Continue</button>
   </div>
 </div>
 
