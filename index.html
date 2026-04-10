@@ -1054,7 +1054,7 @@
     The people in this story were real. The events happened. The questions are still being asked.
   </div>
   <div class="title-music">
-    <iframe allow="autoplay *; encrypted-media *;" frameborder="0" height="150" style="width:100%;max-width:660px;overflow:hidden;background:transparent;border-radius:10px;" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation" src="https://embed.music.apple.com/us/album/house-of-the-rising-sun/1440743736?i=1440743961"></iframe>
+    <iframe id="apple-music-player" allow="autoplay *; encrypted-media *;" frameborder="0" height="150" style="width:100%;max-width:660px;overflow:hidden;background:transparent;border-radius:10px;" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation" src="https://embed.music.apple.com/us/album/house-of-the-rising-sun/1440743736?i=1440743961"></iframe>
   </div>
   <button class="btn-start" onclick="startGame()">Begin Assignment</button>
 </div>
@@ -2177,6 +2177,13 @@ function startGame() {
   document.getElementById('map-panel').classList.add('active');
   document.getElementById('game-container').classList.add('active');
   document.getElementById('mapbox-container').offsetHeight;
+  // Prime epilogue audio on user gesture so browser allows later autoplay
+  epilogueAudio.volume = 0;
+  epilogueAudio.play().then(() => {
+    epilogueAudio.pause();
+    epilogueAudio.currentTime = 0;
+    epilogueAudio.volume = 0.3;
+  }).catch(() => {});
   initMapbox();
   renderScene('scene1');
 }
@@ -2193,6 +2200,12 @@ function renderScene(sceneId) {
     updateRouteMap(scene.stop, scene.location, scene.date);
   }
   updateCasualtyCounter(sceneId);
+
+  // Stop Apple Music after Scene 1
+  if (sceneId === 'scene2') {
+    const ap = document.getElementById('apple-music-player');
+    if (ap) ap.src = 'about:blank';
+  }
 
   let html = '<div class="fade-in">';
 
@@ -2347,12 +2360,16 @@ function submitReport() {
 }
 
 function showBroadcastModal() {
-  document.getElementById('broadcast-overlay').classList.add('active');
+  const iframe = document.getElementById('tonkin-lbj-iframe');
+  iframe.src = 'https://www.youtube.com/embed/dc9gJvpV8xo?autoplay=1';
+  document.getElementById('tonkin-lbj-overlay').classList.add('active');
   document.body.style.overflow = 'hidden';
 }
 
 function closeBroadcastModal() {
-  document.getElementById('broadcast-overlay').classList.remove('active');
+  const iframe = document.getElementById('tonkin-lbj-iframe');
+  iframe.src = '';
+  document.getElementById('tonkin-lbj-overlay').classList.remove('active');
   document.body.style.overflow = '';
 
   if (state._pendingChoice) {
@@ -2512,6 +2529,8 @@ function restartGame() {
   epilogueAudio.pause();
   epilogueAudio.currentTime = 0;
   epilogueAudio.volume = 0.3;
+  const ap = document.getElementById('apple-music-player');
+  if (ap) ap.src = 'https://embed.music.apple.com/us/album/house-of-the-rising-sun/1440743736?i=1440743961';
   document.getElementById('title-screen').style.display = 'flex';
 
   Object.values(mapboxMarkers).forEach(({ element }) => {
@@ -2746,22 +2765,6 @@ ${state.report ? `
 </div>
 
 <!-- LBJ Broadcast Modal -->
-<div class="broadcast-overlay" id="broadcast-overlay">
-  <div class="broadcast-modal">
-    <h2>Address to the Nation</h2>
-    <div class="broadcast-dateline">August 4, 1964 — 11:36 p.m. EST</div>
-    <p class="broadcast-subtitle">President Lyndon Johnson addresses the nation to announce retaliatory air strikes against North Vietnam following the reported attacks in the Gulf of Tonkin. This address, and the congressional resolution that followed, became the legal basis for the Vietnam War.</p>
-    <div class="broadcast-frame" style="background: #1a1a1a; display: flex; align-items: center; justify-content: center; padding-bottom: 0; height: 300px;">
-      <div style="text-align: center; padding: 2rem; color: #999; font-family: 'Source Sans Pro', sans-serif;">
-        <p style="font-size: 1.5rem; margin-bottom: 0.5rem; color: #fff;">&#x1F4FA;</p>
-        <p style="font-size: 0.9rem; font-style: italic; margin-bottom: 1rem;">"The determination of all Americans to carry out our full commitment to the people and to the government of South Vietnam will be redoubled by this outrage."</p>
-        <p style="font-size: 0.8rem;">— President Lyndon B. Johnson, August 4, 1964</p>
-        <p style="font-size: 0.75rem; margin-top: 1rem; color: #666;">The Gulf of Tonkin Resolution passed 416–0 in the House and 88–2 in the Senate.</p>
-      </div>
-    </div>
-    <button class="broadcast-close-btn" onclick="closeBroadcastModal()">Continue</button>
-  </div>
-</div>
 
 <!-- Herrick Cable Modal -->
 <div class="evidence-overlay" id="herrick-overlay" onclick="if(event.target===this)closeHerrickModal()">
@@ -2832,7 +2835,7 @@ ${state.report ? `
     <div class="broadcast-frame">
       <iframe src="" id="tonkin-lbj-iframe" allowfullscreen allow="autoplay; fullscreen"></iframe>
     </div>
-    <button class="broadcast-close-btn" onclick="closeTonkinLBJModal()">Continue</button>
+    <button class="broadcast-close-btn" onclick="closeBroadcastModal()">Continue</button>
   </div>
 </div>
 
