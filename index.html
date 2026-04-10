@@ -2159,12 +2159,37 @@ document.addEventListener('change', function(e) {
   }
 });
 
+const introAudio = new Audio('House of the rising sun.mp3');
+introAudio.volume = 0.3;
+introAudio.loop = true;
+
+const epilogueAudio = new Audio('creedance-clearwater-revival-fortunate-son.mp3');
+epilogueAudio.volume = 0.3;
+epilogueAudio.loop = true;
+
+function fadeOutAudio(audio, duration = 2000) {
+  const step = 30;
+  const volumeStep = audio.volume / (duration / step);
+  const fade = setInterval(() => {
+    if (audio.volume - volumeStep <= 0) {
+      audio.volume = 0;
+      audio.pause();
+      clearInterval(fade);
+    } else {
+      audio.volume -= volumeStep;
+    }
+  }, step);
+}
+
 function startGame() {
   document.getElementById('title-screen').style.display = 'none';
   document.getElementById('map-panel').classList.add('active');
   document.getElementById('game-container').classList.add('active');
   document.getElementById('mapbox-container').offsetHeight;
   initMapbox();
+  introAudio.currentTime = 0;
+  introAudio.volume = 0.3;
+  introAudio.play().catch(() => {});
   renderScene('scene1');
 }
 
@@ -2185,6 +2210,10 @@ function renderScene(sceneId) {
 
   if (scene.isEpilogue) {
     state.reachedEpilogue = true;
+    fadeOutAudio(introAudio);
+    epilogueAudio.currentTime = 0;
+    epilogueAudio.volume = 0.3;
+    epilogueAudio.play().catch(() => {});
   }
 
   // Navigation buttons
@@ -2493,6 +2522,12 @@ function restartGame() {
   document.getElementById('game-container').classList.remove('active');
   document.getElementById('game-container').innerHTML = '';
   document.getElementById('casualty-counter').classList.remove('active');
+  introAudio.pause();
+  introAudio.currentTime = 0;
+  introAudio.volume = 0.3;
+  epilogueAudio.pause();
+  epilogueAudio.currentTime = 0;
+  epilogueAudio.volume = 0.3;
   document.getElementById('title-screen').style.display = 'flex';
 
   Object.values(mapboxMarkers).forEach(({ element }) => {
