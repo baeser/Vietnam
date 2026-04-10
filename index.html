@@ -89,6 +89,12 @@
 
   .btn-start:hover { background: var(--accent-light); }
 
+  .title-music {
+    margin: 1.2rem auto 0.5rem;
+    max-width: 660px;
+    width: 90%;
+  }
+
   /* ===== MAP PANEL ===== */
   #map-panel {
     position: relative;
@@ -1046,6 +1052,9 @@
     In this simulation, you are an <em>American war correspondent</em> covering the conflict from the fall of French Indochina to the fall of Saigon. You will witness the key events, make decisions about what stories to tell, and confront the questions the war forced an entire nation to face.
     <br><br>
     The people in this story were real. The events happened. The questions are still being asked.
+  </div>
+  <div class="title-music">
+    <iframe allow="autoplay *; encrypted-media *;" frameborder="0" height="150" style="width:100%;max-width:660px;overflow:hidden;background:transparent;border-radius:10px;" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation" src="https://embed.music.apple.com/us/album/house-of-the-rising-sun/1440743736?i=1440743961"></iframe>
   </div>
   <button class="btn-start" onclick="startGame()">Begin Assignment</button>
 </div>
@@ -2159,27 +2168,9 @@ document.addEventListener('change', function(e) {
   }
 });
 
-const introAudio = new Audio('House of the rising sun.mp3');
-introAudio.volume = 0.3;
-introAudio.loop = true;
-
 const epilogueAudio = new Audio('creedance-clearwater-revival-fortunate-son.mp3');
 epilogueAudio.volume = 0.3;
 epilogueAudio.loop = true;
-
-function fadeOutAudio(audio, duration = 2000) {
-  const step = 30;
-  const volumeStep = audio.volume / (duration / step);
-  const fade = setInterval(() => {
-    if (audio.volume - volumeStep <= 0) {
-      audio.volume = 0;
-      audio.pause();
-      clearInterval(fade);
-    } else {
-      audio.volume -= volumeStep;
-    }
-  }, step);
-}
 
 function startGame() {
   document.getElementById('title-screen').style.display = 'none';
@@ -2187,9 +2178,6 @@ function startGame() {
   document.getElementById('game-container').classList.add('active');
   document.getElementById('mapbox-container').offsetHeight;
   initMapbox();
-  introAudio.currentTime = 0;
-  introAudio.volume = 0.3;
-  introAudio.play().catch(() => {});
   renderScene('scene1');
 }
 
@@ -2210,7 +2198,6 @@ function renderScene(sceneId) {
 
   if (scene.isEpilogue) {
     state.reachedEpilogue = true;
-    fadeOutAudio(introAudio);
     epilogueAudio.currentTime = 0;
     epilogueAudio.volume = 0.3;
     epilogueAudio.play().catch(() => {});
@@ -2522,9 +2509,6 @@ function restartGame() {
   document.getElementById('game-container').classList.remove('active');
   document.getElementById('game-container').innerHTML = '';
   document.getElementById('casualty-counter').classList.remove('active');
-  introAudio.pause();
-  introAudio.currentTime = 0;
-  introAudio.volume = 0.3;
   epilogueAudio.pause();
   epilogueAudio.currentTime = 0;
   epilogueAudio.volume = 0.3;
